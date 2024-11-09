@@ -28,13 +28,12 @@ RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available
     && phpenmod movim \
     && phpenmod movim
 
+# add init script
+COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
 # create movim user
 RUN useradd -r -d /usr/local/share/movim movim
-
-# add init script
-COPY assets/entrypoint.sh /usr/local/share/movim/entrypoint.sh
-RUN chown movim:movim /usr/local/share/movim/entrypoint.sh \
-    && chmod ug+x /usr/local/share/movim/entrypoint.sh
 
 # switch to movim user
 USER movim
@@ -52,4 +51,4 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
     && composer install \
     && mkdir -p cache log public/cache
 
-ENTRYPOINT entrypoint.sh
+ENTRYPOINT /usr/local/bin/entrypoint.sh
