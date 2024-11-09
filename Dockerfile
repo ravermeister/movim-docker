@@ -41,5 +41,3 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
     && composer install \
     && mkdir -p cache log public/cache \
 
-
-
