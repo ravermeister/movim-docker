@@ -10,7 +10,7 @@ RUN set -eux; \
     apt-get update -q &&\
     apt-get install -yq --no-install-recommends \
       apt-transport-https ca-certificates less nano \
-      tzdata libatomic1 wget \
+      tzdata libatomic1 wget make \
       unzip libmagickwand-dev libjpeg-dev libpng-dev libwebp-dev libpq-dev libzip-dev \
       composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear \
     && apt-get clean \
@@ -19,17 +19,14 @@ RUN set -eux; \
     && rm -rf /etc/update-motd.d /etc/motd /etc/motd.dynamic \
     && ln -fs /dev/null /run/motd.dynamic
 
-# PHP Settings for movim
-RUN mkdir /etc/php/conf.d \
- && echo 'opcache.memory_consumption=128' >>/etc/php/conf.d/movim.ini \
- && echo 'opcache.interned_strings_buffer=8' >>/etc/php/conf.d/movim.ini \
- && echo 'opcache.max_accelerated_files=4000' >>/etc/php/conf.d/movim.ini \
- && echo 'opcache.revalidate_freq=2' >>/etc/php/conf.d/movim.ini \
- && echo 'opcache.fast_shutdown=1' >>/etc/php/conf.d/movim.ini \
- && echo 'opcache.enable_cli=1' >>/etc/php/conf.d/movim.ini \
- && ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available)/movim.ini \
- && phpenmod movim
+# install php modules
+RUN printf "\n" | pecl install imagick
 
+# PHP Settings for movim
+COPY assets/movim.ini /etc/php/conf.d/movim.ini
+
+RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available)/movim.ini && phpenmod movim \
+   && phpenmod movim
 
 FROM base AS movim
 RUN echo "Hello from movim docker"
