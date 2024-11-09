@@ -33,8 +33,7 @@ COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # create movim user
-RUN useradd -r -d /usr/local/share/movim movim \
-    && service $(basename $(find /etc/init.d -type f -name php*-fpm)) start
+RUN useradd -r -d /usr/local/share/movim movim
 
 # switch to movim user
 USER movim
@@ -51,6 +50,9 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
     && git checkout $MOVIM_VERSION \
     && composer install \
     && mkdir -p cache log public/cache
+
+# start required services
+USER root
 
 EXPOSE 80 8080
 ENTRYPOINT /usr/local/bin/entrypoint.sh
