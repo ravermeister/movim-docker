@@ -24,10 +24,17 @@ RUN printf "\n" | pecl install imagick zip
 
 # PHP Settings for movim
 COPY assets/movim.ini /etc/php/conf.d/movim.ini
-
 RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available)/movim.ini \
     && phpenmod movim \
     && phpenmod movim
+
+# create movim user
+RUN mkdir -p /usr/local/share/movim \
+    && useradd -r -d /usr/local/share/movim movim
+
+# switch to movim user
+USER movim
+WORKDIR /usr/local/share/movim
 
 # install movim
 FROM base AS movim
@@ -39,7 +46,6 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
     && cd /usr/local/share/movim \
     && git checkout $MOVIM_VERSION \
     && composer install \
-    && mkdir -p cache log public/cache \
+    && mkdir -p cache log public/cache
 
-
-
+WORKDIR /usr/local/share/movim
