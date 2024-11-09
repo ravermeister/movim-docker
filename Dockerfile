@@ -12,7 +12,7 @@ RUN set -eux; \
       apt-transport-https ca-certificates less nano \
       tzdata libatomic1 wget \
       unzip libmagickwand-dev libjpeg-dev libpng-dev libwebp-dev libpq-dev libzip-dev \
-      composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml \
+      composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
 #    # Remove MOTD
@@ -28,7 +28,7 @@ RUN mkdir /etc/php/conf.d \
  && echo 'opcache.fast_shutdown=1' >>/etc/php/conf.d/movim.ini \
  && echo 'opcache.enable_cli=1' >>/etc/php/conf.d/movim.ini \
  && ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available)/movim.ini \
- && phpenconf movim
+ && phpenmod movim
 
 
 FROM base AS movim
