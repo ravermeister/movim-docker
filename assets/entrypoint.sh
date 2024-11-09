@@ -1,4 +1,18 @@
 #!/usr/bin/env bash
 
-composer movim:migrate \
-	&& php daemon.php start
+movim_daemon() {
+	composer movim:migrate \
+		&& php daemon.php start
+}
+
+system_services() {
+	service "$(basename "$(find /etc/init.d -type f -name "php*-fpm")")" start
+	service nginx start
+}
+
+if [ "$(id -un)" -eq 0 ]; then
+	system_services
+	su -l movim "$0"
+else
+	movim_daemon
+fi
