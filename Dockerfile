@@ -1,4 +1,4 @@
-FROM arm64v8/debian:stable-slim as base
+FROM arm64v8/debian:stable-slim AS base
 LABEL org.opencontainers.image.authors="Jonny Rimkus <jonny@rimkus.it>" \
 description="Movim Arm Docker Image based on debian-slim"
 SHELL ["/bin/sh", "-c"]
@@ -34,5 +34,5 @@ RUN set -eux; \
 #    && phpenconf
 
 
-FROM base as movim
+FROM base AS movim
 RUN echo "Hello from movim docker"
