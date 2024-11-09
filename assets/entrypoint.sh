@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 movim_daemon() {
+	cd /usr/local/share/movim
 	composer movim:migrate \
 		&& php daemon.php start
 }
