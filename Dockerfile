@@ -6,9 +6,9 @@ SHELL ["/bin/sh", "-c"]
 ENV LANG=C.UTF-8
 # Install required packages
 RUN set -eux; \
-    export DEBIAN_FRONTEND=noninteractive &&\
-    apt-get update -q &&\
-    apt-get install -yq --no-install-recommends \
+    export DEBIAN_FRONTEND=noninteractive \
+    && apt-get update -q \
+    && apt-get install -yq --no-install-recommends \
       apt-transport-https ca-certificates less nano \
       tzdata libatomic1 wget make xz-utils git nginx \
       unzip libmagickwand-dev libjpeg-dev libpng-dev libwebp-dev libpq-dev libzip-dev \
@@ -25,8 +25,9 @@ RUN printf "\n" | pecl install imagick zip
 # PHP Settings for movim
 COPY assets/movim.ini /etc/php/conf.d/movim.ini
 
-RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available)/movim.ini && phpenmod movim \
-   && phpenmod movim
+RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available)/movim.ini \
+    && phpenmod movim \
+    && phpenmod movim
 
 # install movim
 FROM base AS movim
@@ -34,7 +35,8 @@ FROM base AS movim
 ARG MOVIM_GIT_REPO=https://github.com/movim/movim.git
 ARG MOVIM_VERSION=v0.28
 
-RUN mkdir -p /usr/local/share/movim \
-  && git clone $MOVIM_GIT_REPO && git checkout $MOVIM_VERSION
-
-
+RUN mkdir -p /usr/local/share/movim/cache \
+    && git clone $MOVIM_GIT_REPO /usr/local/share/movim \
+    && cd /usr/local/share/movim \
+    && git checkout $MOVIM_VERSION \
+    && composer install
