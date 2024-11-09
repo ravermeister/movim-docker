@@ -32,6 +32,9 @@ RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available
 COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+# add nginx config
+COPY assets/movin-nginx.conf /etc/nginx/sites-available/default
+
 # create movim user
 RUN useradd -r -d /usr/local/share/movim movim
 
