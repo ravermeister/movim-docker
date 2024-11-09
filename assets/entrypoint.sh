@@ -10,7 +10,7 @@ system_services() {
 	service nginx start
 }
 
-if [ "$(id -un)" -eq 0 ]; then
+if [ "$(id -u)" -eq 0 ]; then
 	system_services
 	su -l movim "$0"
 else
