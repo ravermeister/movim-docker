@@ -10,7 +10,7 @@ RUN set -eux; \
     apt-get update -q &&\
     apt-get install -yq --no-install-recommends \
       apt-transport-https ca-certificates less nano \
-      tzdata libatomic1 wget make xz-utils git \
+      tzdata libatomic1 wget make xz-utils git nginx \
       unzip libmagickwand-dev libjpeg-dev libpng-dev libwebp-dev libpq-dev libzip-dev \
       composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear \
     && apt-get clean \
