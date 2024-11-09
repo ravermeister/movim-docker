@@ -29,8 +29,7 @@ RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available
     && phpenmod movim
 
 # create movim user
-RUN mkdir -p /usr/local/share/movim \
-    && useradd -r -d /usr/local/share/movim movim
+RUN useradd -r -d /usr/local/share/movim movim
 
 # switch to movim user
 USER movim
