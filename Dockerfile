@@ -51,7 +51,9 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
     && composer install \
     && mkdir -p cache log public/cache
 
-# start required services
+# we need to be root first, 
+# because the entrypoint.sh starts php-fpm and nginx before
+# the movin daemon
 USER root
 
 EXPOSE 80 8080
