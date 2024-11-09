@@ -33,7 +33,8 @@ COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # create movim user
-RUN useradd -r -d /usr/local/share/movim movim
+RUN useradd -r -d /usr/local/share/movim movim \
+    && service $(basename $(find /etc/init.d -type f -name php*-fpm)) start
 
 # switch to movim user
 USER movim
