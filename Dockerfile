@@ -52,4 +52,5 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
     && composer install \
     && mkdir -p cache log public/cache
 
+EXPOSE 80 8080
 ENTRYPOINT /usr/local/bin/entrypoint.sh
