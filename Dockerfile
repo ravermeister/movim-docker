@@ -35,18 +35,17 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # add nginx config
 COPY assets/movin-nginx.conf /etc/nginx/sites-available/default
 
-# create movim user
-RUN useradd -r -d /usr/local/share/movim movim
-
-# switch to movim user
-USER movim
-WORKDIR /usr/local/share/movim
-
 # install movim
 FROM base AS movim
 
 ARG MOVIM_GIT_REPO=https://github.com/movim/movim.git
 ARG MOVIM_VERSION=v0.28
+
+# create movim folder
+RUN mkdir -p /usr/local/share/movim \
+    && chown www-data:www-data /usr/local/share/movim
+USER www-data
+WORKDIR /usr/local/share/movim
 
 RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
     && cd /usr/local/share/movim \
