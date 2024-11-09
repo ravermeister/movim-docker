@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-composer movim:migrate
+composer movim:migrate \
+	&& php daemon.php start
