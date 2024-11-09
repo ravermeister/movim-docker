@@ -22,5 +22,17 @@ RUN set -eux; \
     /etc/ssh/ssh_host_ed25519_key /etc/ssh/ssh_host_ed25519_key.pub \
     /etc/ssh/ssh_host_rsa_key /etc/ssh/ssh_host_rsa_key.pub >/dev/null 2>&1
 
-FROM base as movim
 
+#RUN { \
+#		echo 'opcache.memory_consumption=128'; \
+#		echo 'opcache.interned_strings_buffer=8'; \
+#		echo 'opcache.max_accelerated_files=4000'; \
+#		echo 'opcache.revalidate_freq=2'; \
+#		echo 'opcache.fast_shutdown=1'; \
+#		echo 'opcache.enable_cli=1'; \
+#	} > /etc/php/conf.d/opcache-recommended.ini \
+#    && phpenconf
+
+
+FROM base as movim
+RUN echo "Hello from movim docker"
