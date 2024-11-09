@@ -28,5 +28,13 @@ COPY assets/movim.ini /etc/php/conf.d/movim.ini
 RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available)/movim.ini && phpenmod movim \
    && phpenmod movim
 
+# install movim
 FROM base AS movim
-RUN echo "Hello from movim docker"
+
+ARG MOVIM_GIT_REPO=https://github.com/movim/movim.git
+ARG MOVIM_VERSION=v0.28
+
+RUN mkdir -p /usr/local/share/movim \
+  && git clone $MOVIM_GIT_REPO && git checkout $MOVIM_VERSION
+
+
