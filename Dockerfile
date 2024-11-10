@@ -30,7 +30,8 @@ RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available
 
 # PHP FPM Settings
 COPY assets/movim-fpm.conf /etc/php/pool.d/movim.conf
-RUN ln -s /etc/php/pool.d/movim.conf $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/movim.conf
+RUN rm $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/* \
+    && ln -s /etc/php/pool.d/movim.conf $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/movim.conf
 
 # add init script
 COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -39,11 +40,11 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # add nginx config
 COPY assets/movin-nginx.conf /etc/nginx/sites-available/default
 
-# create movim user
-RUN useradd -r -d /usr/local/share/movim movim
 
-# switch to movim user
-USER movim
+# switch to www-data user
+USER www-data
+RUN mkdir -p /usr/local/share/movim \
+    && chown www-data:www-data /usr/local/share/movim
 WORKDIR /usr/local/share/movim
 
 # install movim
