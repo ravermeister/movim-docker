@@ -42,8 +42,8 @@ image_arm64:
     - >
       docker buildx build --no-cache --force-rm --compress --load \
         --platform "linux/arm64" \
-        --arg MOVIM_GIT_REPO=$MOVIM_REPOSITORY \
-        --arg MOVIM_VERSION=$movim_version \
+        --build-arg MOVIM_GIT_REPO=$MOVIM_REPOSITORY \
+        --build-arg MOVIM_VERSION=$movim_version \
         -t "${IMAGE_NAME}" \
         -t "${CI_REGISTRY_IMAGE}:arm64" \
         .
