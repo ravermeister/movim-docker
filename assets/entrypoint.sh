@@ -13,7 +13,7 @@ system_services() {
 
 if [ "$(id -u)" -eq 0 ]; then
 	system_services
-	su -l movim -s /bin/bash "$0"
+	su -l www-data -s /bin/bash "$0"
 else
 	movim_daemon
 fi
