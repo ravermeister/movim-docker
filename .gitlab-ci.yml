@@ -1,0 +1,25 @@
+stages:
+  - sync
+  - create
+  - release
+
+include:
+  - local: .gitlab/.gitlab-ci.build.yml
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  DOCKER_DRIVER: overlay2
+  BUILDX_VERSION: v${DOCKER_BUILDX_VERSION}
+  BUILDX_ARCHITECTURE: linux-arm64
+  DOCKER_CREDENTIAL_HELPER_VERSION: v${DOCKER_CRED_HELPER_VERSION}
+  DOCKER_CREDENTIAL_HELPER_ARCHITECTURE: linux-arm64  
+  IMAGE_NAME: "movim"
+  MOVIM_REPOSITORY: "https://github.com/movim/movim.git"
+  CI_REGISTRY_IMAGE: ravermeister/${IMAGE_NAME}
+  GPG_USER: movim-ci
+  GPG_MAIL: info@rimkus.it
+  DOCKER_AUTH_CONFIG: '
+    {
+      "credsStore": "pass"
+    }
+  '
