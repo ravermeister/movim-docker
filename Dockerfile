@@ -30,7 +30,7 @@ RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available
 
 # PHP FPM Settings
 COPY assets/movim-fpm.conf /etc/php/pool.d/movim.conf
-RUN ln -s /etc/php/pool.d/movim.conf $(find /etc/php -type d -name pool.d -path /etc/php/pool.d -prune)/movim.conf
+RUN ln -s /etc/php/pool.d/movim.conf $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/movim.conf
 
 # add init script
 COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
