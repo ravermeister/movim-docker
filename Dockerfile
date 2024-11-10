@@ -25,7 +25,6 @@ RUN printf "\n" | pecl install imagick zip
 # PHP Settings for movim
 COPY assets/movim.ini /etc/php/conf.d/movim.ini
 RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available)/movim.ini \
-    && phpenmod movim \
     && phpenmod movim
 
 # PHP FPM Settings
