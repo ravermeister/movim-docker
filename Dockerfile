@@ -42,9 +42,9 @@ COPY assets/movin-nginx.conf /etc/nginx/sites-available/default
 
 
 # switch to www-data user
-USER www-data
 RUN mkdir -p /usr/local/share/movim \
     && chown www-data:www-data /usr/local/share/movim
+USER www-data
 WORKDIR /usr/local/share/movim
 
 # install movim
