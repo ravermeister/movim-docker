@@ -61,5 +61,7 @@ docker run -d \
 After you've successfully logged in to your Movim Pod, run the following Docker Compose exec command;
 
 ```
-docker-compose exec movim php daemon.php setAdmin example@movim.eu
+docker exec -u www-data movim \
+  cd /usr/local/share/movim \
+  && php daemon.php setAdmin example@movim.eu
 ```
