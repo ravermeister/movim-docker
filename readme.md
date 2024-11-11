@@ -31,12 +31,16 @@ external URL for movim e.g., https://movim.example.org
 
 ## useful folders
 the Following Files and Directories could be of interest:
-- /etc/php/conf.d --> custom movim.ini
-- /etc/php/pool.d --> custom movim fpm.conf
-- /var/log/nginx --> nginx log
-- /var/log/php8.2-fpm.log --> php-fpm log
-- /usr/local/share/movim/log --> movim log
 
+| Path | Descritption |
+|------|--------------|
+| /etc/php/conf.d | custom movim.ini |
+| /etc/php/pool.d | custom movim fpm.conf |
+| /usr/local/share/movim/cache | movim internal cache |
+| /usr/local/share/movim/public/cache | movim (frontend) cache |
+| /var/log/nginx | nginx log |
+| /var/log/php8.2-fpm.log | php-fpm log |
+| /usr/local/share/movim/log | movim log |
 
 ## Run
 run the image as follows (movim will be available on host Machine at port 8080): 
@@ -45,8 +49,10 @@ docker run -d \
 	--name movim \
 	--restart always \	
 	-p 8080:80 \	
-	-v /path/to/.env:/usr/local/share/movim/.env
-	ravermeister/movim-docker:latest
+	-v /path/to/.env:/usr/local/share/movim/.env \
+	-v /path/to/movim/cache:/usr/local/share/movim/cache \
+	-v /path/to/movim/public/cache:/usr/local/share/movim/public/cache \
+	ravermeister/movim:latest
 ```
 
 # Creating an Admin User
