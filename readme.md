@@ -52,6 +52,7 @@ docker run -d \
 	-v /path/to/.env:/usr/local/share/movim/.env \
 	-v /path/to/movim/cache:/usr/local/share/movim/cache \
 	-v /path/to/movim/public/cache:/usr/local/share/movim/public/cache \
+	-v /path/to/movim/log:/usr/local/share/movim/log \
 	ravermeister/movim:latest
 ```
 
