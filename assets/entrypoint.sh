@@ -11,14 +11,15 @@ system_services() {
 	service nginx start
 }
 
-init_movim() {
+update_volume_permissions() {
 	chown -R www-data:www-data /usr/local/share/movim/cache
 	chown -R www-data:www-data /usr/local/share/movim/public/cache
+	chown -R www-data:www-data /usr/local/share/movim/log
 }
 
 if [ "$(id -u)" -eq 0 ]; then
 	system_services
-	init_movim
+	update_volume_permissions
 	su -l www-data -s /bin/bash "$0"
 else
 	movim_daemon
