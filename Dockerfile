@@ -56,7 +56,7 @@ ARG MOVIM_VERSION=v0.28
 
 RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
     && cd /usr/local/share/movim \
-    && git config set advice.detachedHead false \
+    && git config --global advice.detachedHead false \
     && git checkout $MOVIM_VERSION \
     && composer install \
     && mkdir -p cache log public/cache
