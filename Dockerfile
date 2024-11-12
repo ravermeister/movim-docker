@@ -54,9 +54,9 @@ FROM base AS movim
 ARG MOVIM_GIT_REPO=https://github.com/movim/movim.git
 ARG MOVIM_VERSION=v0.28
 
-RUN git config set advice.detachedHead false \
-    && git clone $MOVIM_GIT_REPO /usr/local/share/movim \
+RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
     && cd /usr/local/share/movim \
+    && git config set advice.detachedHead false \
     && git checkout $MOVIM_VERSION \
     && composer install \
     && mkdir -p cache log public/cache
