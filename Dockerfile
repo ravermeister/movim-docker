@@ -41,7 +41,9 @@ COPY assets/movin-nginx.conf /etc/nginx/sites-available/default
 
 
 # switch to www-data user
-RUN mkdir -p /usr/local/share/movim \
+RUN mkdir -p /var/www/.cache \
+    && chown www-data:www-data /var/www/.cache \
+    && mkdir -p /usr/local/share/movim \
     && chown www-data:www-data /usr/local/share/movim
 USER www-data
 WORKDIR /usr/local/share/movim
