@@ -10,6 +10,7 @@
   before_script:
     - apk add --no-cache make bash curl libsecret pass gpg-agent openssh-client
     - .gitlab/docker-credential-init.sh "${GPG_USER}" "${GPG_MAIL}"
+    - git config advice.detachedHead false
     - mkdir -p ~/.docker/cli-plugins
     - curl -sSLo ~/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.$BUILDX_ARCHITECTURE
     - chmod +x ~/.docker/cli-plugins/docker-buildx
