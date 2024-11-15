@@ -1,4 +1,4 @@
-FROM arm64v8/debian:stable-slim AS base
+FROM arm64v8/debian:stable-slim AS base-arm64
 
 LABEL org.opencontainers.image.authors="Jonny Rimkus <jonny@rimkus.it>" \
 description="Movim Arm Docker Image based on debian-slim"
@@ -48,7 +48,7 @@ USER www-data
 WORKDIR /usr/local/share/movim
 
 # install movim
-FROM base AS movim
+FROM base-arm64 AS movim64
 
 ARG MOVIM_GIT_REPO=https://github.com/movim/movim.git
 ARG MOVIM_VERSION=v0.28
