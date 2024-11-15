@@ -32,10 +32,7 @@ image_arm64:
   dependencies: []
   needs: []
   rules:
-    - if: $SYNC_ONLY == "true"
-      when: never
-    - if: $SYNC_ONLY != "true"
-      when: always
+    - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
   script:
     - movim_version=$(cat VERSION)
     - echo "build Movim Version $movim_version"
@@ -57,10 +54,7 @@ manifest:
   needs:
     - image_arm64
   rules:
-    - if: $SYNC_ONLY == "true"
-      when: never
-    - if: $SYNC_ONLY != "true"
-      when: always
+    - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
   script:
     - movim_version=$(cat VERSION)
     - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:arm64"  
