@@ -96,8 +96,29 @@ RUN chown -R www-data:www-data /var/www \
 USER www-data
 WORKDIR /usr/local/share/movim
 
-# install movim
-FROM base-arm64 AS movim64
+# install movim arm64
+FROM base-arm64 AS movim-arm64
+
+ARG MOVIM_GIT_REPO=https://github.com/movim/movim.git
+ARG MOVIM_VERSION=v0.28
+
+RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
+    && cd /usr/local/share/movim \
+    && git config --global advice.detachedHead false \
+    && git checkout $MOVIM_VERSION \
+    && composer install \
+    && mkdir -p cache log public/cache
+
+# we need to be root first, 
+# because the entrypoint.sh starts php-fpm and nginx before
+# the movin daemon
+USER root
+
+EXPOSE 80 8080
+ENTRYPOINT /usr/local/bin/entrypoint.sh
+
+# install movim-amd64
+FROM base-arm64 AS movim-amd64
 
 ARG MOVIM_GIT_REPO=https://github.com/movim/movim.git
 ARG MOVIM_VERSION=v0.28
