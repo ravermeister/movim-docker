@@ -43,9 +43,32 @@ image_arm64:
         --build-arg MOVIM_VERSION=$movim_version \
         -t "${IMAGE_NAME}" \
         -t "${CI_REGISTRY_IMAGE}:arm64" \
-        --target movim64
+        --target movim-arm64
         .
     - docker push "${CI_REGISTRY_IMAGE}:arm64"
+
+### create arm64
+image_amd64:
+  extends: .dind
+  stage: create
+  dependencies: []
+  needs: []
+  rules:
+    - if: $CI_SERVER_URL == "https://gitlab.com"
+  script:
+    - movim_version=$(cat VERSION)
+    - echo "build Movim Version $movim_version"
+    - >
+      docker buildx build --no-cache --force-rm --compress --load \
+        --platform "linux/amd64" \
+        --build-arg MOVIM_GIT_REPO=$MOVIM_REPOSITORY \
+        --build-arg MOVIM_VERSION=$movim_version \
+        -t "${IMAGE_NAME}" \
+        -t "${CI_REGISTRY_IMAGE}:amd64" \
+        --target movim-amd64
+        .
+    - docker push "${CI_REGISTRY_IMAGE}:amd64"
+
 
 ### add tags to manifest
 manifest:
