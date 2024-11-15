@@ -43,6 +43,7 @@ image_arm64:
         --build-arg MOVIM_VERSION=$movim_version \
         -t "${IMAGE_NAME}" \
         -t "${CI_REGISTRY_IMAGE}:arm64" \
+        --target movim64
         .
     - docker push "${CI_REGISTRY_IMAGE}:arm64"
 
