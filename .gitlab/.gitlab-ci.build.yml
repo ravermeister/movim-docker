@@ -51,6 +51,8 @@ image_arm64:
 image_amd64:
   extends: .dind
   stage: create
+  tags:
+    - gitlab-org-docker
   dependencies: []
   needs: []
   rules:
