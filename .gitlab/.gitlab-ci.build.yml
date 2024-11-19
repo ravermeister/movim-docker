@@ -90,6 +90,8 @@ manifest_arm64:
 manifest_amd64:
   extends: .dind
   stage: release
+  tags:
+    - gitlab-org-docker
   dependencies: [ ]
   needs:
     - image_amd64
