@@ -14,6 +14,11 @@ Movim is a distributed social network built on top of XMPP, a popular open stand
 
 ![logo](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Movim-logo.svg/354px-Movim-logo.svg.png)
 
+# supported platforms
+
+ - arm64
+ - amd64
+
 # How to use this image
 
 Note, this Image does *not* contain a required Database nor an XMPP Server. 
@@ -21,7 +26,8 @@ It is Based on Debian Slim and Consists of mainly:
 - nginx (for the movim frontend)
 - php-fpm (required for movim frontend and daemon)
 - required php modules (e.g. imagick, zip)
-- a little shell script for starting php-fpm, nginx and the movim daemon. 
+- a little shell script for starting php-fpm, nginx and the movim daemon.
+
 
 ## Prepare
 Before running the Container, 
