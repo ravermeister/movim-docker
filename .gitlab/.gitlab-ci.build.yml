@@ -72,8 +72,8 @@ image_amd64:
     - docker push "${CI_REGISTRY_IMAGE}:amd64"
 
 
-### add tags to manifest
-manifest:
+### add arm64 to manifest
+manifest_arm64:
   extends: .dind
   stage: release
   dependencies: [ ]
@@ -83,5 +83,19 @@ manifest:
     - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
   script:
     - movim_version=$(cat VERSION)
-    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:arm64"  
-    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:arm64"
+    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:arm64"  
+    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:arm64"
+
+### add amd64 to manifest
+manifest_amd64:
+  extends: .dind
+  stage: release
+  dependencies: [ ]
+  needs:
+    - image_amd64
+  rules:
+    - if: $CI_SERVER_URL == "https://gitlab.com"
+  script:
+    - movim_version=$(cat VERSION)
+    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:arm64"  
+    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:amd64"
