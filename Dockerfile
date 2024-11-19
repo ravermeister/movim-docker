@@ -118,7 +118,7 @@ EXPOSE 80 8080
 ENTRYPOINT /usr/local/bin/entrypoint.sh
 
 # install movim-amd64
-FROM base-arm64 AS movim-amd64
+FROM base-amd64 AS movim-amd64
 
 ARG MOVIM_GIT_REPO=https://github.com/movim/movim.git
 ARG MOVIM_VERSION=v0.28
