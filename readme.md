@@ -1,11 +1,17 @@
 # Quick reference
 
+- 	**Where to find the Docker Image**:
+	Docker Hub [ravermeister/movim](https://hub.docker.com/r/ravermeister/movim)
+
 -	**Where to get help**:
 	the Movim XMPP MUC - movim@conference.movim.eu
 
 -	**Where to file issues**:
 	[https://gitlab.rimkus.it/xmpp/movim-docker](https://gitlab.rimkus.it/xmpp/movim-docker/-/issues)
 
+## supported platforms
+ - arm64
+ - amd64
 # What is Movim?
 
 Movim is a distributed social network built on top of XMPP, a popular open standards communication protocol. Movim is a free and open source software licensed under the AGPL. It can be accessed using existing XMPP clients and Jabber accounts. Learn more at [movim.eu](https://movim.eu/).
@@ -13,11 +19,6 @@ Movim is a distributed social network built on top of XMPP, a popular open stand
 > [wikipedia.org/wiki/Movim](https://en.wikipedia.org/wiki/Movim)
 
 ![logo](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Movim-logo.svg/354px-Movim-logo.svg.png)
-
-# supported platforms
-
- - arm64
- - amd64
 
 # How to use this image
 
