@@ -37,7 +37,7 @@ COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # add nginx config
-COPY assets/movin-nginx.conf /etc/nginx/sites-available/default
+COPY assets/movim-nginx.conf /etc/nginx/sites-available/default
 
 # switch to www-data user
 RUN chown -R www-data:www-data /var/www \
@@ -86,7 +86,7 @@ COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # add nginx config
-COPY assets/movin-nginx.conf /etc/nginx/sites-available/default
+COPY assets/movim-nginx.conf /etc/nginx/sites-available/default
 
 
 # switch to www-data user
@@ -111,7 +111,7 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
 
 # we need to be root first, 
 # because the entrypoint.sh starts php-fpm and nginx before
-# the movin daemon
+# the movim daemon
 USER root
 
 EXPOSE 80 8080
@@ -132,7 +132,7 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
 
 # we need to be root first, 
 # because the entrypoint.sh starts php-fpm and nginx before
-# the movin daemon
+# the movim daemon
 USER root
 
 EXPOSE 80 8080
