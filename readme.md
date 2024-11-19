@@ -2,10 +2,8 @@
 
 - 	**Where to find the Docker Image**:
 	Docker Hub [ravermeister/movim](https://hub.docker.com/r/ravermeister/movim)
-
 -	**Where to get help**:
 	the Movim XMPP MUC - movim@conference.movim.eu
-
 -	**Where to file issues**:
 	[https://gitlab.rimkus.it/xmpp/movim-docker](https://gitlab.rimkus.it/xmpp/movim-docker/-/issues)
 
