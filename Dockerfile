@@ -20,7 +20,9 @@ RUN set -eux; \
     && ln -fs /dev/null /run/motd.dynamic
 
 # install php modules
-RUN printf "\n" | pecl install imagick zip
+RUN phpdismod imagick && \
+  printf "\n" | pecl install imagick zip && \
+  phpenmod imagick
 
 # PHP Settings for movim
 COPY assets/movim.ini /etc/php/conf.d/movim.ini
