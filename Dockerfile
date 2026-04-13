@@ -21,9 +21,9 @@ RUN set -eux; \
 
 # install php modules
 RUN \
-  phpdismod imagick zip && \
-  printf "\n" | pecl install imagick zip && \
-  phpenmod imagick zip
+  phpdismod imagick zip bcmath && \
+  printf "\n" | pecl install imagick zip bcmath && \
+  phpenmod imagick zip bcmath
 
 # PHP Settings for movim
 COPY assets/movim.ini /etc/php/conf.d/movim.ini
@@ -73,9 +73,9 @@ RUN set -eux; \
 
 # install php modules
 RUN \
-  phpdismod imagick zip && \
-  printf "\n" | pecl install imagick zip && \
-  phpenmod imagick zip
+  phpdismod imagick zip bcmath && \
+  printf "\n" | pecl install imagick zip bcmath && \
+  phpenmod imagick zip bcmath
 
 # PHP Settings for movim
 COPY assets/movim.ini /etc/php/conf.d/movim.ini
