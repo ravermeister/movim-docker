@@ -12,7 +12,7 @@ RUN set -eux; \
       apt-transport-https ca-certificates less nano \
       tzdata libatomic1 wget make xz-utils git nginx \
       unzip libmagickwand-dev libjpeg-dev libpng-dev libwebp-dev libpq-dev libzip-dev \
-      composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear \
+      composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear php-zip php-bcmath \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
 #    # Remove MOTD
@@ -21,8 +21,8 @@ RUN set -eux; \
 
 # install php modules
 RUN \
-  phpdismod imagick zip bcmath && \
-  printf "\n" | pecl install imagick zip bcmath && \
+  phpdismod imagick zip && \
+  printf "\n" | pecl install imagick zip && \
   phpenmod imagick zip bcmath
 
 # PHP Settings for movim
@@ -64,7 +64,7 @@ RUN set -eux; \
       apt-transport-https ca-certificates less nano \
       tzdata libatomic1 wget make xz-utils git nginx \
       unzip libmagickwand-dev libjpeg-dev libpng-dev libwebp-dev libpq-dev libzip-dev \
-      composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear \
+      composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear php-bcmath php-zip \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
 #    # Remove MOTD
@@ -73,9 +73,9 @@ RUN set -eux; \
 
 # install php modules
 RUN \
-  phpdismod imagick zip bcmath && \
-  printf "\n" | pecl install imagick zip bcmath && \
-  phpenmod imagick zip bcmath
+  phpdismod imagick zip && \
+  printf "\n" | pecl install imagick zip && \
+  phpenmod imagick zip
 
 # PHP Settings for movim
 COPY assets/movim.ini /etc/php/conf.d/movim.ini
