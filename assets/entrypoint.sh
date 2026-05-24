@@ -22,6 +22,8 @@ update_volume_permissions() {
 	chown -R www-data:www-data /usr/local/share/movim/log
 }
 
+## Main execution
+
 if [ "$(id -u)" -eq 0 ]; then
 	system_services
 	update_volume_permissions
