@@ -1,11 +1,15 @@
 # Quick reference
 
+- 	**Where to find the Docker Image**:
+	Docker Hub [ravermeister/movim](https://hub.docker.com/r/ravermeister/movim)
 -	**Where to get help**:
 	the Movim XMPP MUC - movim@conference.movim.eu
-
 -	**Where to file issues**:
 	[https://gitlab.rimkus.it/xmpp/movim-docker](https://gitlab.rimkus.it/xmpp/movim-docker/-/issues)
 
+## supported platforms
+ - arm64
+ - amd64
 # What is Movim?
 
 Movim is a distributed social network built on top of XMPP, a popular open standards communication protocol. Movim is a free and open source software licensed under the AGPL. It can be accessed using existing XMPP clients and Jabber accounts. Learn more at [movim.eu](https://movim.eu/).
@@ -21,7 +25,8 @@ It is Based on Debian Slim and Consists of mainly:
 - nginx (for the movim frontend)
 - php-fpm (required for movim frontend and daemon)
 - required php modules (e.g. imagick, zip)
-- a little shell script for starting php-fpm, nginx and the movim daemon. 
+- a little shell script for starting php-fpm, nginx and the movim daemon.
+
 
 ## Prepare
 Before running the Container, 
@@ -31,12 +36,16 @@ external URL for movim e.g., https://movim.example.org
 
 ## useful folders
 the Following Files and Directories could be of interest:
-- /etc/php/conf.d --> custom movim.ini
-- /etc/php/pool.d --> custom movim fpm.conf
-- /var/log/nginx --> nginx log
-- /var/log/php8.2-fpm.log --> php-fpm log
-- /usr/local/share/movim/log --> movim log
 
+| Path | Descritption |
+|------|--------------|
+| /etc/php/conf.d | custom movim.ini |
+| /etc/php/pool.d | custom movim fpm.conf |
+| /usr/local/share/movim/cache | movim internal cache |
+| /usr/local/share/movim/public/cache | movim (frontend) cache |
+| /var/log/nginx | nginx log |
+| /var/log/php8.2-fpm.log | php-fpm log |
+| /usr/local/share/movim/log | movim log |
 
 ## Run
 run the image as follows (movim will be available on host Machine at port 8080): 
@@ -45,14 +54,19 @@ docker run -d \
 	--name movim \
 	--restart always \	
 	-p 8080:80 \	
-	-v /path/to/.env:/usr/local/share/movim/.env
-	ravermeister/movim-docker:latest
+	-v /path/to/.env:/usr/local/share/movim/.env \
+	-v /path/to/movim/cache:/usr/local/share/movim/cache \
+	-v /path/to/movim/public/cache:/usr/local/share/movim/public/cache \
+	-v /path/to/movim/log:/usr/local/share/movim/log \
+	ravermeister/movim:latest
 ```
 
 # Creating an Admin User
 
 After you've successfully logged in to your Movim Pod, run the following Docker Compose exec command;
 
-```
-docker-compose exec movim php daemon.php setAdmin example@movim.eu
+```shell
+docker exec -u www-data movim \
+  cd /usr/local/share/movim \
+  && php daemon.php setAdmin example@movim.eu
 ```
