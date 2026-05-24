@@ -1,16 +1,8 @@
 #!/usr/bin/env bash
 
-movim_migrate() {
-  if [ -f "phinx.php" ]; then
-    # fix for phinx.php missing CONFIG_PATH constant
-    sed -i \
-      '2i\define("CONFIG_PATH", __DIR__ . "/config/");\nrequire_once __DIR__ . "/vendor/autoload.php";' \
-      phinx.php
-  fi
-  php "$(which composer)" movim:migrate
-}
 movim_daemon() {
-		php daemon.php start
+  php "$(which composer)" movim:migrate
+	php daemon.php start
 }
 
 system_services() {
@@ -32,6 +24,5 @@ if [ "$(id -u)" -eq 0 ]; then
 	su -l www-data -s /bin/bash "$0"
 else
   cd /usr/local/share/movim || exit 1
-  movim_migrate
 	movim_daemon
 fi
