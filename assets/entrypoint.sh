@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
 movim_migrate() {
-  # fix for phinx.php missing CONFIG_PATH constant
-  sed -i '2i\define("CONFIG_PATH", __DIR__ . "/config/");\nrequire_once __DIR__ . "/vendor/autoload.php";' \
-    /usr/local/share/movim/phinx.php
-
-  php -d auto_prepend_file=vendor/autoload.php "$(which composer)" movim:migrate
+  if [ -f "phinx.php" ]; then
+    # fix for phinx.php missing CONFIG_PATH constant
+      sed -i '2i\define("CONFIG_PATH", __DIR__ . "/config/");\nrequire_once __DIR__ . "/vendor/autoload.php";' \
+        phinx.php
+  fi
+  php "$(which composer)" movim:migrate
 }
 movim_daemon() {
 		php daemon.php start
