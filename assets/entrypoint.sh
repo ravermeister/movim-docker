@@ -3,8 +3,9 @@
 movim_migrate() {
   if [ -f "phinx.php" ]; then
     # fix for phinx.php missing CONFIG_PATH constant
-      sed -i '2i\define("CONFIG_PATH", __DIR__ . "/config/");\nrequire_once __DIR__ . "/vendor/autoload.php";' \
-        phinx.php
+    sed -i \
+      '2i\define("CONFIG_PATH", __DIR__ . "/config/");\nrequire_once __DIR__ . "/vendor/autoload.php";' \
+      phinx.php
   fi
   php "$(which composer)" movim:migrate
 }
