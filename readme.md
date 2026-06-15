@@ -15,8 +15,7 @@
 Movim is a distributed social network built on top of XMPP, a popular open standards communication protocol. Movim is a free and open source software licensed under the AGPL. It can be accessed using existing XMPP clients and Jabber accounts. Learn more at [movim.eu](https://movim.eu/).
 
 > [wikipedia.org/wiki/Movim](https://en.wikipedia.org/wiki/Movim)
-
-![logo](https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Movim-logo.svg/354px-Movim-logo.svg.png)
+![logo](https://en.wikipedia.org/wiki/Movim#/media/File%3AMovim_logo.svg)
 
 # How to use this image
 
