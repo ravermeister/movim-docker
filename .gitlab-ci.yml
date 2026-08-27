@@ -16,6 +16,7 @@ variables:
   IMAGE_NAME: "movim"
   MOVIM_REPOSITORY: "https://github.com/movim/movim.git"
   CI_REGISTRY_IMAGE: ravermeister/${IMAGE_NAME}
+  GALENER_REPOSITORY: "https://github.com/jech/galene"
   GPG_USER: movim-ci
   GPG_MAIL: info@rimkus.it
   DOCKER_AUTH_CONFIG: '
