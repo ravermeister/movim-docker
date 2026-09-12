@@ -8,6 +8,7 @@
     - docker
     - arm64
   before_script:
+    - !reference [.init_versions, before_script]
     - apk add --no-cache make bash curl libsecret pass gpg-agent openssh-client
     - .gitlab/docker-credential-init.sh "${GPG_USER}" "${GPG_MAIL}"
     - mkdir -p ~/.docker/cli-plugins
@@ -31,17 +32,17 @@
   dependencies: []
   needs: []
   before_script:
+    - !reference [.init_versions, before_script]
     - apk add --no-cache wget tar git
   script:
     # see https://github.com/jech/galene/blob/master/galene-install.md
-    - tasks_vision_version=$(head -n2 VERSION | tail -n1 | cut -d "=" -f2)
     # build galene
     - git clone "$GALENER_REPOSITORY" galene && cd galene
     - CGO_ENABLED=0 go build -ldflags='-s -w'
     # load mediapipe
     - mkdir mediapipe && cd mediapipe    
-    - wget https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$tasks_vision_version.tgz
-    - tar xzf tasks-vision-$tasks_vision_version.tgz
+    - wget https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
+    - tar xzf tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
     - rm -f ../static/third-party/tasks-vision
     - mv package ../static/third-party/tasks-vision
     - cd ../static/third-party/tasks-vision
@@ -73,14 +74,13 @@ image_arm64:
     - galene_arm64
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
-  script:
-    - movim_version=$(head -n1 VERSION | cut -d "=" -f2)
-    - echo "build Movim Version $movim_version"
+  script:    
+    - echo "build Movim Version $MOVIM_VERSION"
     - >
       docker buildx build --no-cache --force-rm --compress --load \
         --platform "linux/arm64" \
         --build-arg MOVIM_GIT_REPO=$MOVIM_REPOSITORY \
-        --build-arg MOVIM_VERSION=$movim_version \
+        --build-arg MOVIM_VERSION=$MOVIM_VERSION \
         -t "${IMAGE_NAME}" \
         -t "${CI_REGISTRY_IMAGE}:arm64" \
         --target movim-arm64 \
@@ -109,13 +109,12 @@ image_amd64:
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.com"
   script:
-    - movim_version=$(head -n1 VERSION | cut -d "=" -f2)
-    - echo "build Movim Version $movim_version"
+    - echo "build Movim Version $MOVIM_VERSION"
     - >
       docker buildx build --no-cache --force-rm --compress --load \
         --platform "linux/amd64" \
         --build-arg MOVIM_GIT_REPO=$MOVIM_REPOSITORY \
-        --build-arg MOVIM_VERSION=$movim_version \
+        --build-arg MOVIM_VERSION=$MOVIM_VERSION \
         -t "${IMAGE_NAME}" \
         -t "${CI_REGISTRY_IMAGE}:amd64" \
         --target movim-amd64 \
@@ -132,13 +131,12 @@ manifest_arm64:
     - image_arm64
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
-  script:
-    - movim_version=$(cat VERSION)
+  script:    
     - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:arm64"  
-    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:arm64"
+    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:${MOVIM_VERSION}" "${CI_REGISTRY_IMAGE}:arm64"
     # append possible amd64
     - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:amd64"  
-    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:amd64"
+    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${MOVIM_VERSION}" "${CI_REGISTRY_IMAGE}:amd64"
 
 ### add amd64 to manifest
 manifest_amd64:
@@ -151,10 +149,9 @@ manifest_amd64:
     - image_amd64
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.com"
-  script:
-    - movim_version=$(cat VERSION)
+  script:    
     - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:amd64"  
-    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:amd64"
+    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:${MOVIM_VERSION}" "${CI_REGISTRY_IMAGE}:amd64"
     # append possible amd64
     - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:arm64"  
-    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:arm64"
+    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${MOVIM_VERSION}" "${CI_REGISTRY_IMAGE}:arm64"

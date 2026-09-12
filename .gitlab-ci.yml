@@ -18,9 +18,14 @@ variables:
   CI_REGISTRY_IMAGE: ravermeister/${IMAGE_NAME}
   GALENER_REPOSITORY: "https://github.com/jech/galene"  
   GPG_USER: movim-ci
-  GPG_MAIL: info@rimkus.it
+  GPG_MAIL: info@rimkus.it  
   DOCKER_AUTH_CONFIG: '
     {
       "credsStore": "pass"
     }
   '
+
+.init_versions:
+  before_script:
+    MOVIM_VERSION: $(awk -F= 'NR==1 {print $2}' VERSION)    
+    GALENE_TASKS_VISION_VERSION: $(awk -F= 'NR==2 {print $2}' VERSION)    
