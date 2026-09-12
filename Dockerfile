@@ -38,6 +38,7 @@ RUN rm $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/* \
 # add Galener Support for movim
 ADD assets/galene.tgz /usr/local/share/galene/
 RUN \
+    chown www-data:www-data /usr/local/share/galene && \
     chmod +x /usr/local/share/galene/galene && \
     ln -s /usr/local/share/galene/galene /usr/local/bin
 
@@ -96,8 +97,9 @@ RUN rm $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/* \
 # add Galener Support for movim
 ADD assets/galene.tgz /usr/local/share/galene/
 RUN \
+    chown www-data:www-data /usr/local/share/galene && \
     chmod +x /usr/local/share/galene/galene && \
-    ln -s /usr/local/share/galene/galene /usr/local/bin
+    ln -s /usr/local/share/galene/galene /usr/local/bin && \
 
 # add init script
 COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
