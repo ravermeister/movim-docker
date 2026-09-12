@@ -32,7 +32,7 @@ variables:
 
 .init_alpine_docker:
   before_script:
-    !reference [.init_versions, before_script]
+  !reference [.init_versions, before_script]
     - apk add --no-cache make bash curl libsecret pass gpg-agent openssh-client
     - .gitlab/docker-credential-init.sh "${GPG_USER}" "${GPG_MAIL}"
     - mkdir -p ~/.docker/cli-plugins
@@ -50,5 +50,5 @@ variables:
 
 .init_alpine_golang:
   before_script:
-    !reference [.init_versions, before_script]
+  !reference [.init_versions, before_script]
     - apk add --no-cache wget tar git
