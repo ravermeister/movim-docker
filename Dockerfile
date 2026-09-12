@@ -36,7 +36,10 @@ RUN rm $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/* \
     && ln -s /etc/php/pool.d/movim.conf $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/movim.conf
 
 # add Galener Support for movim
-ADD assets/galene.tgz /usr/local/share/galener/
+ADD assets/galene.tgz /usr/local/share/galene/
+RUN \
+    chmod +x /usr/local/share/galene/galene && \
+    ln -s /usr/local/share/galene/galene /usr/local/bin
 
 # add init script
 COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
@@ -144,5 +147,9 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
 # the movim daemon
 USER root
 
-EXPOSE 80 8080
+EXPOSE \
+    # nginx proxy
+    80 8080 \
+    # galene ports
+    1194 8443
 ENTRYPOINT /usr/local/bin/entrypoint.sh
