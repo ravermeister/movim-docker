@@ -23,14 +23,13 @@
   after_script:
     - docker logout
 
-####################################
-
-### galene arm64
-galene_arm64:
-  stage: create
-  image: golang:1.27-alpine
-  rules:
-    - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
+.galene:
+  image: golang:1.27-alpine  
+  tags:
+    - docker
+    - arm64
+  dependencies: []
+  needs: []
   before_script:
     - apk add --no-cache wget tar
   script:
@@ -56,7 +55,14 @@ galene_arm64:
     name: galene
     paths:
       - assets/galene.tgz
+####################################
 
+### galene arm64
+galene_arm64:
+  stage: create
+  extends: .galene
+  rules:
+    - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
 
 ### create arm64
 image_arm64:
@@ -85,38 +91,11 @@ image_arm64:
 ### galene amd64
 galene_amd64:
   stage: create
-  image: golang:1.27-alpine
+  extends: .galene
   tags:
     - gitlab-org-docker
-  dependencies: []
-  needs: []
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.com"
-  before_script:
-    - apk add --no-cache wget tar
-  script:
-    # see https://github.com/jech/galene/blob/master/galene-install.md
-    # build galene
-    - git clone "$GALENER_REPOSITORY" galene && cd galene
-    - CGO_ENABLED=0 go build -ldflags='-s -w'
-    # load mediapipe
-    - mkdir mediapipe && cd mediapipe
-    - tasks_vision_version=$(head -n2 VERSION | tail -n1 | cut -d "=" -f2)
-    - wget https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$tasks_vision_version.tgz
-    - tar xzf tasks-vision-$tasks_vision_version.tgz
-    - rm -f ../static/third-party/tasks-vision
-    - mv package ../static/third-party/tasks-vision
-    - cd ../static/third-party/tasks-vision
-    - mkdir models && cd models
-    - wget https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite
-    - cd && cd galene
-    # save assets
-    - mkdir ../assets
-    - tar czf ../assets/galene.tgz galene static data groups
-  artifacts:
-    name: galene
-    paths:
-      - assets/galene.tgz
 
 ### create amd64
 image_amd64:
