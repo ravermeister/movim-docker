@@ -11,6 +11,7 @@ system_services() {
 }
 
 update_volume_permissions() {
+	chown -R www-data:www-data /usr/local/share/galene
 	chown -R www-data:www-data /usr/local/share/movim/cache
 	chown -R www-data:www-data /usr/local/share/movim/public/cache
 	chown -R www-data:www-data /usr/local/share/movim/log
