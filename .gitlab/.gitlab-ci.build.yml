@@ -35,7 +35,7 @@
     - CGO_ENABLED=0 go build -ldflags='-s -w'
     # load mediapipe
     - mkdir mediapipe && cd mediapipe    
-    - wget https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
+    - wget -qO tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
     - tar xzf tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
     - rm -f ../static/third-party/tasks-vision
     - mv package ../static/third-party/tasks-vision
