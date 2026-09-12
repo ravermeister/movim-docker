@@ -36,7 +36,7 @@ RUN rm $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/* \
     && ln -s /etc/php/pool.d/movim.conf $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/movim.conf
 
 # add Galener Support for movim
-COPY assets/galener.tgz /usr/local/share/galener
+ADD assets/galene.tgz /usr/local/share/galener/
 
 # add init script
 COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
