@@ -34,12 +34,12 @@
     - apk add --no-cache wget tar git
   script:
     # see https://github.com/jech/galene/blob/master/galene-install.md
+    - tasks_vision_version=$(head -n2 VERSION | tail -n1 | cut -d "=" -f2)
     # build galene
     - git clone "$GALENER_REPOSITORY" galene && cd galene
     - CGO_ENABLED=0 go build -ldflags='-s -w'
     # load mediapipe
-    - mkdir mediapipe && cd mediapipe
-    - tasks_vision_version=$(head -n2 VERSION | tail -n1 | cut -d "=" -f2)
+    - mkdir mediapipe && cd mediapipe    
     - wget https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$tasks_vision_version.tgz
     - tar xzf tasks-vision-$tasks_vision_version.tgz
     - rm -f ../static/third-party/tasks-vision
