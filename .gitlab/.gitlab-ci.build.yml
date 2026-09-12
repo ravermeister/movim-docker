@@ -7,64 +7,109 @@
   tags:
     - docker
     - arm64
-  before_script:
-    - apk add --no-cache make bash curl libsecret pass gpg-agent openssh-client
-    - .gitlab/docker-credential-init.sh "${GPG_USER}" "${GPG_MAIL}"
-    - mkdir -p ~/.docker/cli-plugins
-    - curl -sSLo ~/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.$BUILDX_ARCHITECTURE
-    - chmod +x ~/.docker/cli-plugins/docker-buildx
-    - mkdir -p /usr/local/bin
-    - curl -sSLo /usr/local/bin/docker-credential-pass https://github.com/docker/docker-credential-helpers/releases/download/$DOCKER_CREDENTIAL_HELPER_VERSION/docker-credential-pass-$DOCKER_CREDENTIAL_HELPER_VERSION.$DOCKER_CREDENTIAL_HELPER_ARCHITECTURE
-    - chmod +x /usr/local/bin/docker-credential-pass
-    - docker context create tls-environment >/dev/null
-    - docker buildx create --use tls-environment >/dev/null
-    - echo "${DOCKER_AUTH_CONFIG}" > ~/.docker/config.json
-    - echo "${CI_REGISTRY_PASSWORD}" | awk '{print $0}' | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
+  before_script:    
+    - !reference [.init_alpine_docker, init_docker]
+    # custom commands as array below
   after_script:
-    - docker logout
+    # custom commands as array above
+    - !reference [.init_alpine_docker, logout]
 
+.galene:
+  image: golang:1.27-alpine  
+  tags:
+    - docker
+    - arm64
+  dependencies: []
+  needs: []
+  before_script:
+    - !reference [.init_alpine_golang, init_env]
+    # custom commands as array below
+    - apk add --no-cache wget tar git
+  after_script:
+    # custom commands as array above
+    - !reference [.init_alpine_golang, shutdown]
+  script:
+    # see https://github.com/jech/galene/blob/master/galene-install.md
+    # build galene
+    - git clone "$GALENER_REPOSITORY" galene && cd galene
+    - CGO_ENABLED=0 go build -ldflags='-s -w'
+    # load mediapipe
+    - mkdir mediapipe && cd mediapipe    
+    - wget -qO tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
+    - tar xzf tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
+    - rm -f ../static/third-party/tasks-vision
+    - mv package ../static/third-party/tasks-vision
+    - cd ../static/third-party/tasks-vision
+    - mkdir models && cd models
+    - wget -qO selfie_segmenter.tflite https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite
+    - cd "$CI_PROJECT_DIR/galene"
+    - mkdir -p groups data
+    # save assets
+    - tar czf "$CI_PROJECT_DIR/assets/galene.tgz" galene static data groups
+  artifacts:
+    name: galene
+    paths:
+      - "$CI_PROJECT_DIR/assets/galene.tgz"
 ####################################
+
+### galene arm64
+galene_arm64:
+  stage: create
+  extends: .galene
+  rules:
+    - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
 
 ### create arm64
 image_arm64:
   extends: .dind
   stage: create
-  dependencies: []
-  needs: []
+  dependencies: 
+    - galene_arm64
+  needs: 
+    - galene_arm64
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
-  script:
-    - movim_version=$(cat VERSION)
-    - echo "build Movim Version $movim_version"
+  script:    
+    - echo "build Movim Version $MOVIM_VERSION"
     - >
       docker buildx build --no-cache --force-rm --compress --load \
         --platform "linux/arm64" \
         --build-arg MOVIM_GIT_REPO=$MOVIM_REPOSITORY \
-        --build-arg MOVIM_VERSION=$movim_version \
+        --build-arg MOVIM_VERSION=$MOVIM_VERSION \
         -t "${IMAGE_NAME}" \
         -t "${CI_REGISTRY_IMAGE}:arm64" \
         --target movim-arm64 \
         .
     - docker push "${CI_REGISTRY_IMAGE}:arm64"
 
-### create arm64
+### galene amd64
+galene_amd64:
+  stage: create
+  extends: .galene
+  tags:
+    - gitlab-org-docker
+  rules:
+    - if: $CI_SERVER_URL == "https://gitlab.com"
+
+### create amd64
 image_amd64:
   extends: .dind
   stage: create
   tags:
     - gitlab-org-docker
-  dependencies: []
-  needs: []
+  dependencies: 
+    - galene_amd64
+  needs: 
+    - galene_amd64
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.com"
   script:
-    - movim_version=$(cat VERSION)
-    - echo "build Movim Version $movim_version"
+    - echo "build Movim Version $MOVIM_VERSION"
     - >
       docker buildx build --no-cache --force-rm --compress --load \
         --platform "linux/amd64" \
         --build-arg MOVIM_GIT_REPO=$MOVIM_REPOSITORY \
-        --build-arg MOVIM_VERSION=$movim_version \
+        --build-arg MOVIM_VERSION=$MOVIM_VERSION \
         -t "${IMAGE_NAME}" \
         -t "${CI_REGISTRY_IMAGE}:amd64" \
         --target movim-amd64 \
@@ -81,13 +126,12 @@ manifest_arm64:
     - image_arm64
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
-  script:
-    - movim_version=$(cat VERSION)
+  script:    
     - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:arm64"  
-    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:arm64"
+    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:${MOVIM_VERSION}" "${CI_REGISTRY_IMAGE}:arm64"
     # append possible amd64
     - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:amd64"  
-    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:amd64"
+    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${MOVIM_VERSION}" "${CI_REGISTRY_IMAGE}:amd64"
 
 ### add amd64 to manifest
 manifest_amd64:
@@ -100,10 +144,9 @@ manifest_amd64:
     - image_amd64
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.com"
-  script:
-    - movim_version=$(cat VERSION)
+  script:    
     - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:amd64"  
-    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:amd64"
+    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:${MOVIM_VERSION}" "${CI_REGISTRY_IMAGE}:amd64"
     # append possible amd64
     - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:arm64"  
-    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${movim_version}" "${CI_REGISTRY_IMAGE}:arm64"
+    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${MOVIM_VERSION}" "${CI_REGISTRY_IMAGE}:arm64"

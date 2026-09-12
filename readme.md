@@ -10,6 +10,7 @@
 ## supported platforms
  - arm64
  - amd64
+
 # What is Movim?
 
 Movim is a distributed social network built on top of XMPP, a popular open standards communication protocol. Movim is a free and open source software licensed under the AGPL. It can be accessed using existing XMPP clients and Jabber accounts. Learn more at [movim.eu](https://movim.eu/).
@@ -26,10 +27,21 @@ It is Based on Debian Slim and Consists of mainly:
 - required php modules (e.g. imagick, zip)
 - a little shell script for starting php-fpm, nginx and the movim daemon.
 
+## Creating an Admin User
+
+After you've successfully logged in to your Movim Pod, run the following Docker Compose exec command;
+
+```shell
+docker exec -u www-data movim \
+  cd /usr/local/share/movim \
+  && php daemon.php setAdmin example@movim.eu
+```
+
+# How to start this image
 
 ## Prepare
-Before running the Container, 
-you have to copy (and rename to `.env`) and adjust the file [.env.example](assets/.env.example) from the assets' folder.
+Before running the Container, you have to specify an Environment file for Docker e.g. `movim.env`.
+See the [.env.example](assets/.env.example) from the assets' folder for an example.  
 Add your DB Configuration and set the Correct Value for `DAEMON_URL` to point to your 
 external URL for movim e.g., https://movim.example.org
 
@@ -47,25 +59,22 @@ the Following Files and Directories could be of interest:
 | /usr/local/share/movim/log | movim log |
 
 ## Run
+:information_source:  
+if you would like to use [galene](https://github.com/movim/movim/blob/master/doc/GALENER.md) it is [recommended](https://github.com/jech/galene/blob/master/galene-install.md#run-galene-on-the-server) to set `ulimit` to `65536`.  
+for `docker run` this would be the parameter: `--ulimit nofile=65536:65536`
+
 run the image as follows (movim will be available on host Machine at port 8080): 
+
 ```shell
 docker run -d \
 	--name movim \
 	--restart always \	
+	# if you use galene add this argument \
+	--ulimit nofile=65536:65536 \
 	-p 8080:80 \	
 	-v /path/to/.env:/usr/local/share/movim/.env \
 	-v /path/to/movim/cache:/usr/local/share/movim/cache \
 	-v /path/to/movim/public/cache:/usr/local/share/movim/public/cache \
 	-v /path/to/movim/log:/usr/local/share/movim/log \
 	ravermeister/movim:latest
-```
-
-# Creating an Admin User
-
-After you've successfully logged in to your Movim Pod, run the following Docker Compose exec command;
-
-```shell
-docker exec -u www-data movim \
-  cd /usr/local/share/movim \
-  && php daemon.php setAdmin example@movim.eu
 ```
