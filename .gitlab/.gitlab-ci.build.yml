@@ -32,11 +32,11 @@
   dependencies: []
   needs: []
   before_script:
-    !reference [.dind, before_script]
+    !reference [.init_versions, before_script]
     - apk add --no-cache wget tar git
   after_script:
     # own calls above
-    !reference [.dind, after_script]
+    !reference [.init_versions, after_script]
   script:
     # see https://github.com/jech/galene/blob/master/galene-install.md
     # build galene
