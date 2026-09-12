@@ -26,13 +26,13 @@ variables:
   '
 
 .init_versions:
-  before_script:
+  env_vars:
     - export MOVIM_VERSION=$(awk -F= 'NR==1 {print $2}' VERSION)    
     - export GALENE_TASKS_VISION_VERSION=$(awk -F= 'NR==2 {print $2}' VERSION)
 
 .init_alpine_docker:
-  before_script:
-  !reference [.init_versions, before_script]
+  init_docker:
+    - !reference [.init_versions, env_vars]
     - apk add --no-cache make bash curl libsecret pass gpg-agent openssh-client
     - .gitlab/docker-credential-init.sh "${GPG_USER}" "${GPG_MAIL}"
     - mkdir -p ~/.docker/cli-plugins
@@ -45,10 +45,12 @@ variables:
     - docker buildx create --use tls-environment >/dev/null
     - echo "${DOCKER_AUTH_CONFIG}" > ~/.docker/config.json
     - echo "${CI_REGISTRY_PASSWORD}" | awk '{print $0}' | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}"
-  after_script:
+  logout:
     - docker logout
 
 .init_alpine_golang:
-  before_script:
-  !reference [.init_versions, before_script]
+  init_env:
+    - !reference [.init_versions, env_vars]
     - apk add --no-cache wget tar git
+  shutdown:
+    # commands below

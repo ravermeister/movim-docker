@@ -8,11 +8,11 @@
     - docker
     - arm64
   before_script:    
-  !reference [.init_alpine_docker, before_script]
+    - !reference [.init_alpine_docker, init_docker]
     # custom commands as array below
   after_script:
     # custom commands as array above
-  !reference [.init_alpine_docker, after_script]
+    - !reference [.init_alpine_docker, logout]
 
 .galene:
   image: golang:1.27-alpine  
@@ -22,12 +22,12 @@
   dependencies: []
   needs: []
   before_script:
-  !reference [.init_alpine_golang, before_script]
+    - !reference [.init_alpine_golang, init_env]
     # custom commands as array below
     - apk add --no-cache wget tar git
   after_script:
     # custom commands as array above
-  !reference [.init_alpine_golang, after_script]
+    - !reference [.init_alpine_golang, shutdown]
   script:
     # see https://github.com/jech/galene/blob/master/galene-install.md
     # build galene
