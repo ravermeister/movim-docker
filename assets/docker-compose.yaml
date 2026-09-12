@@ -9,6 +9,9 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+    depends_on:
+      tunnel:
+        condition: service_healthy
     ports:
       # Movim Web-Interface (Host:Container)
       - "8080:80"
