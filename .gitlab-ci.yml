@@ -50,5 +50,5 @@ variables:
 
 .init_alpine_golang:
   before_script:
-    - !reference [.init_versions, before_script]
+    !reference [.init_versions, before_script]
     - apk add --no-cache wget tar git
