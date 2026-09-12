@@ -52,5 +52,6 @@ variables:
   init_env:
     - !reference [.init_versions, env_vars]
     - apk add --no-cache wget tar git
-  shutdown:
-    # commands below
+  shutdown: []
+    # commands as array below
+    
