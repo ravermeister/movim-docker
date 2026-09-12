@@ -1,0 +1,47 @@
+services:
+  movim:
+    image: ravermeister/movim:latest
+    hostname: movim
+    restart: always
+    networks:
+      - movim_net
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      # Movim Web-Interface (Host:Container)
+      - "8080:80"
+      # Galène WebRTC & Signalisierungs-Ports
+      - "8443:8443"
+      - "1194:1194"
+    volumes:
+      - /etc/movim/movim.env:/usr/local/share/movim/.env
+      - /media/icy1/daten/movim/cache:/usr/local/share/movim/cache
+      - /media/icy1/daten/movim/pubcache:/usr/local/share/movim/public/cache
+      - /media/icy1/daten/movim/log:/usr/local/share/movim/log
+      # Galene Data
+      - /media/icy1/daten/movim/galene/data/data:/usr/local/share/galene/data
+      - /media/icy1/daten/movim/galene/groups:/usr/local/share/galene/groups
+
+  # 2. Slidge SSH-Tunnel (Baut die Verbindung zum Remote-Server auf)
+  tunnel:
+    image: ravermeister/slidge-sshtunnel:latest
+    hostname: sfu.rimkus.it
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -an | grep 5347 > /dev/null 2>&1"]
+    networks:
+      - movim_net
+    volumes:
+      - /etc/movim/tunnels/movim.conf.sh:/home/ssh-tunnel/config/movim.conf.sh
+      - /media/icy1/daten/movim/ssh:/home/ssh-tunnel/.ssh
+
+networks:
+  movim_net:
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: "2a02:8071:6280:e1c0:2026::/80"
+

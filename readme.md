@@ -71,7 +71,9 @@ docker run -d \
 	--restart always \	
 	# if you use galene add this argument \
 	--ulimit nofile=65536:65536 \
-	-p 8080:80 \	
+	-p 8080:80 \
+	-p 1194:1194 \
+	-p 8443:8443 \
 	-v /path/to/.env:/usr/local/share/movim/.env \
 	-v /path/to/movim/cache:/usr/local/share/movim/cache \
 	-v /path/to/movim/public/cache:/usr/local/share/movim/public/cache \
