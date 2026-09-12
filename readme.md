@@ -47,11 +47,29 @@ the Following Files and Directories could be of interest:
 | /usr/local/share/movim/log | movim log |
 
 ## Run
+if you would like to use [galene](https://github.com/movim/movim/blob/master/doc/GALENER.md) it is [recommended](https://github.com/jech/galene/blob/master/galene-install.md#run-galene-on-the-server) to set `ulimit` to `65536`.  
+for `docker run` this would be the parameter: `--ulimit nofile=65536:65536`
+in a `docker-compose.yaml` this would be:
+```shell
+version: '3.8'
+services:
+  movim-galene:
+    image: ravermeister/movim:latest
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
+```
+
 run the image as follows (movim will be available on host Machine at port 8080): 
+
 ```shell
 docker run -d \
 	--name movim \
 	--restart always \	
+	# if you use galene add this argument \
+	--ulimit nofile=65536:65536 \
 	-p 8080:80 \	
 	-v /path/to/.env:/usr/local/share/movim/.env \
 	-v /path/to/movim/cache:/usr/local/share/movim/cache \

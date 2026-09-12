@@ -47,7 +47,7 @@
     - cd ../static/third-party/tasks-vision
     - mkdir models && cd models
     - wget -qO selfie_segmenter.tflite https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite
-    - cd "$CI_PROJECT_DIR"/galene"
+    - cd "$CI_PROJECT_DIR/galene"
     # save assets
     - mkdir ../assets
     - tar czf ../assets/galene.tgz galene static data groups
