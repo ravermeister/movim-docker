@@ -54,6 +54,7 @@ the Following Files and Directories could be of interest:
 | /etc/php/pool.d | custom movim fpm.conf |
 | /usr/local/share/movim/cache | movim internal cache |
 | /usr/local/share/movim/public/cache | movim (frontend) cache |
+| /usr/local/share/galene | galener folder |
 | /var/log/nginx | nginx log |
 | /var/log/php8.2-fpm.log | php-fpm log |
 | /usr/local/share/movim/log | movim log |
