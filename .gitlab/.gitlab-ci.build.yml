@@ -25,16 +25,51 @@
 
 ####################################
 
+### galene arm64
+galene_arm64:
+  stage: create
+  image: golang:1.27-alpine
+  rules:
+    - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
+  before_script:
+    - apk add --no-cache wget tar
+  script:
+    # see https://github.com/jech/galene/blob/master/galene-install.md
+    # build galene
+    - git clone "$GALENER_REPOSITORY" galene && cd galene
+    - CGO_ENABLED=0 go build -ldflags='-s -w'
+    # load mediapipe
+    - mkdir mediapipe && cd mediapipe
+    - tasks_vision_version=$(head -n2 VERSION | tail -n1 | cut -d "=" -f2)
+    - wget https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$tasks_vision_version.tgz
+    - tar xzf tasks-vision-$tasks_vision_version.tgz
+    - rm -f ../static/third-party/tasks-vision
+    - mv package ../static/third-party/tasks-vision
+    - cd ../static/third-party/tasks-vision
+    - mkdir models && cd models
+    - wget https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite
+    - cd && cd galene
+    # save assets
+    - mkdir ../assets
+    - tar czf ../assets/galene.tgz galene static data groups
+  artifacts:
+    name: galene
+    paths:
+      - assets/galene.tgz
+
+
 ### create arm64
 image_arm64:
   extends: .dind
   stage: create
-  dependencies: []
-  needs: []
+  dependencies: 
+    - galene_arm64
+  needs: 
+    - galene_arm64
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.rimkus.it"
   script:
-    - movim_version=$(cat VERSION)
+    - movim_version=$(head -n1 VERSION | cut -d "=" -f2)
     - echo "build Movim Version $movim_version"
     - >
       docker buildx build --no-cache --force-rm --compress --load \
@@ -47,18 +82,55 @@ image_arm64:
         .
     - docker push "${CI_REGISTRY_IMAGE}:arm64"
 
-### create arm64
-image_amd64:
-  extends: .dind
+### galene amd64
   stage: create
+  image: golang:1.27-alpine
   tags:
     - gitlab-org-docker
   dependencies: []
   needs: []
   rules:
     - if: $CI_SERVER_URL == "https://gitlab.com"
+  before_script:
+    - apk add --no-cache wget tar
   script:
-    - movim_version=$(cat VERSION)
+    # see https://github.com/jech/galene/blob/master/galene-install.md
+    # build galene
+    - git clone "$GALENER_REPOSITORY" galene && cd galene
+    - CGO_ENABLED=0 go build -ldflags='-s -w'
+    # load mediapipe
+    - mkdir mediapipe && cd mediapipe
+    - tasks_vision_version=$(head -n2 VERSION | tail -n1 | cut -d "=" -f2)
+    - wget https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$tasks_vision_version.tgz
+    - tar xzf tasks-vision-$tasks_vision_version.tgz
+    - rm -f ../static/third-party/tasks-vision
+    - mv package ../static/third-party/tasks-vision
+    - cd ../static/third-party/tasks-vision
+    - mkdir models && cd models
+    - wget https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite
+    - cd && cd galene
+    # save assets
+    - mkdir ../assets
+    - tar czf ../assets/galene.tgz galene static data groups
+  artifacts:
+    name: galene
+    paths:
+      - assets/galene.tgz
+
+### create amd64
+image_amd64:
+  extends: .dind
+  stage: create
+  tags:
+    - gitlab-org-docker
+  dependencies: 
+    - galene_amd64
+  needs: 
+    - galene_amd64
+  rules:
+    - if: $CI_SERVER_URL == "https://gitlab.com"
+  script:
+    - movim_version=$(head -n1 VERSION | cut -d "=" -f2)
     - echo "build Movim Version $movim_version"
     - >
       docker buildx build --no-cache --force-rm --compress --load \
