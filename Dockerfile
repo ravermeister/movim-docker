@@ -93,6 +93,12 @@ COPY assets/movim-fpm.conf /etc/php/pool.d/movim.conf
 RUN rm $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/* \
     && ln -s /etc/php/pool.d/movim.conf $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/movim.conf
 
+# add Galener Support for movim
+ADD assets/galene.tgz /usr/local/share/galene/
+RUN \
+    chmod +x /usr/local/share/galene/galene && \
+    ln -s /usr/local/share/galene/galene /usr/local/bin
+
 # add init script
 COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
