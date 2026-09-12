@@ -53,7 +53,7 @@
   artifacts:
     name: galene
     paths:
-      - "$$CI_PROJECT_DIR/assets/galene.tgz"
+      - "$CI_PROJECT_DIR/assets/galene.tgz"
 ####################################
 
 ### galene arm64
