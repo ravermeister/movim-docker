@@ -18,7 +18,7 @@
   need_build:
     # HEAD-Request an die Generic Package Registry senden
     - |
-      STATUS_CODE=$(curl --head --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent --output /dev/null --write-out "%{http_code}" "${GALENE_PACKAGE_URL}")
+      STATUS_CODE=$(curl --head --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent --output /dev/null --write-out "%{http_code}" "${GALENE_PACKAGE_BASE_URL}/${GALENE_VERSION}/galene.tgz")
       if [ "$STATUS_CODE" -eq 200 ]; then
         echo "Galene Version ${GALENE_VERSION} existiert bereits in der Package Registry."
         echo "export NEEDS_BUILD=false" > "$CI_PROJECT_DIR/build.env"
@@ -73,7 +73,7 @@
         echo "using >$GALENE_PACKAGE_BASE_URL/${GALENE_VERSION}/galene.tgz<"
         curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
           --upload-file "$CI_PROJECT_DIR/assets/galene.tgz" \
-          "${GALENE_PACKAGE_BASE_URL}/${GALENE_VERSION}/galene.tgz" 
+          "${GALENE_PACKAGE_BASE_URL}/${GALENE_VERSION}/galene.tgz"
           
         echo "Bereinige Registry (Behalte maximal die neuesten $KEEP_VERSIONS Versionen)..."              
         PACKAGES_JSON=$(curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=galene&sort=desc&order_by=id")
