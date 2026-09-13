@@ -70,7 +70,7 @@
       source "$CI_PROJECT_DIR/build.env"
       if [ "$NEEDS_BUILD" = "true" ]; then
         echo "Speichere fertiges Artefakt in die GitLab Registry..."
-        
+        echo "using >$GALENE_PACKAGE_URL<"
         curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
           --upload-file "$CI_PROJECT_DIR/assets/galene.tgz" \
           "${GALENE_PACKAGE_URL}" 
