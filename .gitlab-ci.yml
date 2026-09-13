@@ -36,7 +36,7 @@ variables:
 
 .init_alpine_golang:
   init_env:
-    - !reference [.init_alpine_docker,  init_docker]
+    - !reference [.init_versions, env_vars]
     - apk add --no-cache wget tar git
   shutdown: []
     # commands as array below
