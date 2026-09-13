@@ -77,7 +77,7 @@
           "${GALENE_PACKAGE_BASE_URL}/${GALENE_VERSION}/galene.tgz"
         )
         printf "%s\n" "$SAVE_RESPONSE"
-        
+
         echo "Bereinige Registry (Behalte maximal die neuesten $KEEP_VERSIONS Versionen)..."              
         PACKAGES_JSON=$(
           curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
@@ -126,6 +126,7 @@
     - !reference [.galene_builder, save_artifact]
   artifacts:
     name: galene
+    expire_in: 5 days
     paths:
       - "$CI_PROJECT_DIR/assets/galene.tgz"
 ####################################
