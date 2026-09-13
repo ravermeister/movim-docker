@@ -65,6 +65,7 @@
 
   save_artifact:
     - |
+      source build.env
       if [ "$NEEDS_BUILD" = "true" ]; then
         echo "Speichere fertiges Artefakt in die GitLab Registry..."
         
@@ -82,7 +83,7 @@
           for PACKAGE_ID in $OLD_PACKAGE_IDs; do
             VERSION_NAME=$(echo "$PACKAGES_JSON" | jq -r ".[] | select(.id == ${PACKAGE_ID}) | .version")
             echo "Lösche alte Galene-Version: $VERSION_NAME (ID: $PACKAGE_ID)..."          
-            curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PACKAGE_ID}"
+            curl --request DELETE --header "PRIVATE-TOKEN: ${GITLAB_REGISTRY_BOT}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PACKAGE_ID}"
           done
         fi
       fi
@@ -103,7 +104,6 @@
     # custom commands as array above
     - !reference [.init_alpine_golang, shutdown]    
   script:  
-    - source build.env
     # FALL 1: Version existiert bereits -> Aus Registry herunterladen
     - !reference [.galene_builder, load_artifact]
     # FALL 2: Version ist neu -> Frisch bauen, hochladen & aufräumen
