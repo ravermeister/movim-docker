@@ -28,11 +28,6 @@ variables:
     }
   '
 
-include:
-  - local: .gitlab/.gitlab-ci.build.tpl.yml
-  - local: .gitlab/.gitlab-ci.build.amd64.yml
-  - local: .gitlab/.gitlab-ci.build.arm64.yml
-
 .init_versions:
   env_vars:
     - export MOVIM_VERSION=$(awk -F= 'NR==1 {print $2}' VERSION)  # line 1 is movim_version
@@ -63,4 +58,9 @@ include:
     - apk add --no-cache wget tar git
   shutdown: []
     # commands as array below
+
+include:
+  - local: .gitlab/.gitlab-ci.build.tpl.yml
+  - local: .gitlab/.gitlab-ci.build.amd64.yml
+  - local: .gitlab/.gitlab-ci.build.arm64.yml
     
