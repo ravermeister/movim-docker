@@ -21,31 +21,37 @@
       STATUS_CODE=$(curl --head --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent --output /dev/null --write-out "%{http_code}" "${GALENE_PACKAGE_URL}")
       if [ "$STATUS_CODE" -eq 200 ]; then
         echo "Galene Version ${GALENE_VERSION} existiert bereits in der Package Registry."
-        echo "NEEDS_BUILD=false" > build.env        
+        echo "export NEEDS_BUILD=false" > build.env
       else
         echo "Galene Version ${GALENE_VERSION} nicht gefunden. Neubau wird gestartet."
-        echo "NEEDS_BUILD=true" > build.env        
+        echo "export NEEDS_BUILD=true" > build.env
       fi
-  build:    
-    # see https://github.com/jech/galene/blob/master/galene-install.md
-    # build galene
-    - git clone "$GALENE_REPOSITORY" galene && cd galene && git checkout "galene-$GALENE_VERSION"
-    - CGO_ENABLED=0 go build -ldflags='-s -w'    
-    # load mediapipe
-    - mkdir mediapipe && cd mediapipe    
-    - wget -qO tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
-    - tar xzf tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
-    - rm -f ../static/third-party/tasks-vision
-    - mv package ../static/third-party/tasks-vision
-    - cd ../static/third-party/tasks-vision
-    - mkdir models && cd models
-    - wget -qO selfie_segmenter.tflite https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite
-    - cd "$CI_PROJECT_DIR/galene"
-    - mkdir -p groups data
-    # save assets
-    - tar czf "$CI_PROJECT_DIR/assets/galene.tgz" galene static data groups
+  build:
+    - |
+      source build.env
+      if [ "$NEEDS_BUILD" = "true" ]; then
+        # see https://github.com/jech/galene/blob/master/galene-install.md
+        # build galene
+        git clone "$GALENE_REPOSITORY" galene && cd galene && git checkout "galene-$GALENE_VERSION"
+        CGO_ENABLED=0 go build -ldflags='-s -w'    
+        # load mediapipe
+        mkdir mediapipe && cd mediapipe    
+        wget -qO tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
+        tar xzf tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
+        rm -f ../static/third-party/tasks-vision
+        mv package ../static/third-party/tasks-vision
+        cd ../static/third-party/tasks-vision
+        mkdir models && cd models
+        wget -qO selfie_segmenter.tflite https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite
+        cd "$CI_PROJECT_DIR/galene"
+        mkdir -p groups data
+        # save assets
+        tar czf "$CI_PROJECT_DIR/assets/galene.tgz" galene static data groups
+      fi
+
   load_artifact:
-    - |      
+    - |
+      source build.env
       if [ "$NEEDS_BUILD" != "true" ]; then
         echo "Version ${GALENE_VERSION} existiert bereits. Lade aus Registry..."
         mkdir -p "$CI_PROJECT_DIR/assets"
@@ -67,7 +73,7 @@
           "${GALENE_PACKAGE_URL}" 
         
         echo "Bereinige Registry (Behalte maximal die neuesten $KEEP_VERSIONS Versionen)..."      
-        PACKAGES_JSON=$(curl --header "PRIVATE-TOKEN: ${GL_API_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=galene&sort=desc&order_by=id")
+        PACKAGES_JSON=$(curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=galene&sort=desc&order_by=id")
         OLD_PACKAGE_IDs=$(echo "$PACKAGES_JSON" | jq -r ".[${KEEP_VERSIONS}:].id | select(. != null)")
 
         if [ -z "$OLD_PACKAGE_IDs" ]; then
@@ -76,7 +82,7 @@
           for PACKAGE_ID in $OLD_PACKAGE_IDs; do
             VERSION_NAME=$(echo "$PACKAGES_JSON" | jq -r ".[] | select(.id == ${PACKAGE_ID}) | .version")
             echo "Lösche alte Galene-Version: $VERSION_NAME (ID: $PACKAGE_ID)..."          
-            curl --request DELETE --header "PRIVATE-TOKEN: ${GL_API_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PACKAGE_ID}"
+            curl --request DELETE --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PACKAGE_ID}"
           done
         fi
       fi
@@ -91,7 +97,7 @@
   before_script:
     - !reference [.init_alpine_golang, init_env]
     # custom commands as array below
-    - apk add --no-cache wget tar git curl
+    - apk add --no-cache wget tar git curl jq
     - !reference [.galene_builder, need_build]    
   after_script:
     # custom commands as array above
