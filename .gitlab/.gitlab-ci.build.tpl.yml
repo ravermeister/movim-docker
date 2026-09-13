@@ -71,12 +71,18 @@
       if [ "$NEEDS_BUILD" = "true" ]; then
         echo "Speichere fertiges Artefakt in die GitLab Registry..."
         echo "using >$GALENE_PACKAGE_BASE_URL/${GALENE_VERSION}/galene.tgz<"
-        curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+        SAVE_RESPONSE=$(
+          curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
           --upload-file "$CI_PROJECT_DIR/assets/galene.tgz" \
           "${GALENE_PACKAGE_BASE_URL}/${GALENE_VERSION}/galene.tgz"
-          
+        )
+        printf "%s\n" "$SAVE_RESPONSE"
+        
         echo "Bereinige Registry (Behalte maximal die neuesten $KEEP_VERSIONS Versionen)..."              
-        PACKAGES_JSON=$(curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=galene&sort=desc&order_by=id")
+        PACKAGES_JSON=$(
+          curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+            --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=galene&sort=desc&order_by=id"
+        )
         
         if [ -z "$PACKAGES_JSON" ] || echo "$PACKAGES_JSON" | grep -q "error" || [ "$PACKAGES_JSON" = "[]" ]; then
           echo "Registry ist noch leer oder neu initialisiert. Keine alten Versionen zum Löschen."
