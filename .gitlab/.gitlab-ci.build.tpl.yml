@@ -29,9 +29,11 @@
   build:
     - |
       source build.env
-      if [ "$NEEDS_BUILD" = "true" ]; then
+      if [ "$NEEDS_BUILD" = "true" ]; then        
         # see https://github.com/jech/galene/blob/master/galene-install.md
         # build galene
+        
+        echo "Version ${GALENE_VERSION} nicht gefunden. Starte Neubau..."
         git clone "$GALENE_REPOSITORY" galene && cd galene && git checkout "galene-$GALENE_VERSION"
         CGO_ENABLED=0 go build -ldflags='-s -w'    
         # load mediapipe
@@ -107,7 +109,6 @@
     # FALL 1: Version existiert bereits -> Aus Registry herunterladen
     - !reference [.galene_builder, load_artifact]
     # FALL 2: Version ist neu -> Frisch bauen, hochladen & aufräumen
-    - echo "Version ${GALENE_VERSION} nicht gefunden. Starte Neubau..."
     # 1. Eigentlicher Kompiliervorgang aus Ihrem Template
     # (Hinweis: Das Skript muss am Ende das Archiv in "$CI_PROJECT_DIR/assets/galene.tgz" ablegen!)
     - !reference [.galene_builder, build]
