@@ -1,0 +1,51 @@
+### galene amd64
+galene_amd64:
+  stage: create
+  extends: .galene
+  tags:
+    - gitlab-org-docker
+  rules:
+    - if: $CI_SERVER_URL == "https://gitlab.com"
+
+### create amd64
+image_amd64:
+  extends: .dind
+  stage: create
+  tags:
+    - gitlab-org-docker
+  dependencies: 
+    - galene_amd64
+  needs: 
+    - galene_amd64
+  rules:
+    - if: $CI_SERVER_URL == "https://gitlab.com"
+  script:
+    - echo "build Movim Version $MOVIM_VERSION"
+    - >
+      docker buildx build --no-cache --force-rm --compress --load \
+        --platform "linux/amd64" \
+        --build-arg MOVIM_GIT_REPO=$MOVIM_REPOSITORY \
+        --build-arg MOVIM_VERSION=$MOVIM_VERSION \
+        -t "${IMAGE_NAME}" \
+        -t "${CI_REGISTRY_IMAGE}:amd64" \
+        --target movim-amd64 \
+        .
+    - docker push "${CI_REGISTRY_IMAGE}:amd64"
+
+### add amd64 to manifest
+manifest_amd64:
+  extends: .dind
+  stage: release
+  tags:
+    - gitlab-org-docker
+  dependencies: [ ]
+  needs:
+    - image_amd64
+  rules:
+    - if: $CI_SERVER_URL == "https://gitlab.com"
+  script:    
+    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:amd64"  
+    - docker buildx imagetools create --tag "${CI_REGISTRY_IMAGE}:${MOVIM_VERSION}" "${CI_REGISTRY_IMAGE}:amd64"
+    # append possible arm64
+    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:arm64"  
+    - docker buildx imagetools create --append --tag "${CI_REGISTRY_IMAGE}:${MOVIM_VERSION}" "${CI_REGISTRY_IMAGE}:arm64"

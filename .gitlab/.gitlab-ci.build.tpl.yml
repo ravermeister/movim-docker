@@ -1,0 +1,114 @@
+# docker in docker template
+.dind:
+  image: docker
+  services:
+    - name: docker:dind
+      command: ["--experimental"]
+  tags:
+    - docker
+    - arm64
+  before_script:    
+    - !reference [.init_alpine_docker, init_docker]
+    # custom commands as array below
+  after_script:
+    # custom commands as array above
+    - !reference [.init_alpine_docker, logout]
+
+.galene_builder:
+  need_build:
+    # HEAD-Request an die Generic Package Registry senden
+    - |
+      STATUS_CODE=$(curl --head --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent --output /dev/null --write-out "%{http_code}" "${GALENE_PACKAGE_URL}")
+      if [ "$STATUS_CODE" -eq 200 ]; then
+        echo "Galene Version ${GALENE_VERSION} existiert bereits in der Package Registry."
+        echo "NEEDS_BUILD=false" > build.env        
+      else
+        echo "Galene Version ${GALENE_VERSION} nicht gefunden. Neubau wird gestartet."
+        echo "NEEDS_BUILD=true" > build.env        
+      fi
+  build:    
+    # see https://github.com/jech/galene/blob/master/galene-install.md
+    # build galene
+    - git clone "$GALENE_REPOSITORY" galene && cd galene && git checkout "galene-$GALENE_VERSION"
+    - CGO_ENABLED=0 go build -ldflags='-s -w'    
+    # load mediapipe
+    - mkdir mediapipe && cd mediapipe    
+    - wget -qO tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz https://registry.npmjs.org/@mediapipe/tasks-vision/-/tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
+    - tar xzf tasks-vision-$GALENE_TASKS_VISION_VERSION.tgz
+    - rm -f ../static/third-party/tasks-vision
+    - mv package ../static/third-party/tasks-vision
+    - cd ../static/third-party/tasks-vision
+    - mkdir models && cd models
+    - wget -qO selfie_segmenter.tflite https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite
+    - cd "$CI_PROJECT_DIR/galene"
+    - mkdir -p groups data
+    # save assets
+    - tar czf "$CI_PROJECT_DIR/assets/galene.tgz" galene static data groups
+  load_artifact:
+    - |      
+      if [ "$NEEDS_BUILD" != "true" ]; then
+        echo "Version ${GALENE_VERSION} existiert bereits. Lade aus Registry..."
+        mkdir -p "$CI_PROJECT_DIR/assets"
+        
+        curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+              --fail \
+              --output "$CI_PROJECT_DIR/assets/galene.tgz" \
+              "${GALENE_PACKAGE_URL}"
+        echo "Erfolgreich aus Registry geladen."        
+      fi
+
+  save_artifact:
+    - |
+      if [ "$NEEDS_BUILD" = "true" ]; then
+        echo "Speichere fertiges Artefakt in die GitLab Registry..."
+        
+        curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+          --upload-file "$CI_PROJECT_DIR/assets/galene.tgz" \
+          "${GALENE_PACKAGE_URL}" 
+        
+        echo "Bereinige Registry (Behalte maximal die neuesten $KEEP_VERSIONS Versionen)..."      
+        PACKAGES_JSON=$(curl --header "PRIVATE-TOKEN: ${GL_API_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=galene&sort=desc&order_by=id")
+        OLD_PACKAGE_IDs=$(echo "$PACKAGES_JSON" | jq -r ".[${KEEP_VERSIONS}:].id | select(. != null)")
+
+        if [ -z "$OLD_PACKAGE_IDs" ]; then
+          echo "Registry ist sauber. Keine alten Versionen zum Löschen gefunden."
+        else
+          for PACKAGE_ID in $OLD_PACKAGE_IDs; do
+            VERSION_NAME=$(echo "$PACKAGES_JSON" | jq -r ".[] | select(.id == ${PACKAGE_ID}) | .version")
+            echo "Lösche alte Galene-Version: $VERSION_NAME (ID: $PACKAGE_ID)..."          
+            curl --request DELETE --header "PRIVATE-TOKEN: ${GL_API_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PACKAGE_ID}"
+          done
+        fi
+      fi
+
+.galene:
+  image: golang:1.27-alpine  
+  tags:
+    - docker
+    - arm64
+  dependencies: []
+  needs: []
+  before_script:
+    - !reference [.init_alpine_golang, init_env]
+    # custom commands as array below
+    - apk add --no-cache wget tar git curl
+    - !reference [.galene_builder, need_build]    
+  after_script:
+    # custom commands as array above
+    - !reference [.init_alpine_golang, shutdown]    
+  script:  
+    - source build.env
+    # FALL 1: Version existiert bereits -> Aus Registry herunterladen
+    - !reference [.galene_builder, load_artifact]
+    # FALL 2: Version ist neu -> Frisch bauen, hochladen & aufräumen
+    - echo "Version ${GALENE_VERSION} nicht gefunden. Starte Neubau..."
+    # 1. Eigentlicher Kompiliervorgang aus Ihrem Template
+    # (Hinweis: Das Skript muss am Ende das Archiv in "$CI_PROJECT_DIR/assets/galene.tgz" ablegen!)
+    - !reference [.galene_builder, build]
+    # 2. In die Generic Package Registry hochladen
+    - !reference [.galene_builder, save_artifact]
+  artifacts:
+    name: galene
+    paths:
+      - "$CI_PROJECT_DIR/assets/galene.tgz"
+####################################
