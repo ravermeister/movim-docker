@@ -13,8 +13,8 @@ variables:
   IMAGE_NAME: "movim"
   MOVIM_REPOSITORY: "https://github.com/movim/movim.git"
   CI_REGISTRY_IMAGE: ravermeister/${IMAGE_NAME}
-  GALENE_REPOSITORY: "https://github.com/jech/galene"
-  GALENE_PACKAGE_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/galene/${GALENE_VERSION}/galene.tgz"
+  GALENE_REPOSITORY: "https://github.com/jech/galene"  
+  GALENE_PACKAGE_BASE_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/galene"
   GALENE_KEEP_VERSIONS: 3 # Maximal zu behaltende Versionen
   GPG_USER: movim-ci
   GPG_MAIL: info@rimkus.it  
