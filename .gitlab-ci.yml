@@ -25,7 +25,11 @@ variables:
   GPG_MAIL: info@rimkus.it  
   DOCKER_AUTH_CONFIG: '
     {
-      "credsStore": "pass"
+      "credHelpers": {
+        "gitlab.rimkus.it": "pass",
+        "docker.io": "pass",
+        "index.docker.io": "pass"
+      }
     }
   '
 

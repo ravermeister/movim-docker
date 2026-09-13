@@ -21,18 +21,18 @@
       STATUS_CODE=$(curl --head --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent --output /dev/null --write-out "%{http_code}" "${GALENE_PACKAGE_URL}")
       if [ "$STATUS_CODE" -eq 200 ]; then
         echo "Galene Version ${GALENE_VERSION} existiert bereits in der Package Registry."
-        echo "export NEEDS_BUILD=false" > build.env
+        echo "export NEEDS_BUILD=false" > "$CI_PROJECT_DIR/build.env"
       else
         echo "Galene Version ${GALENE_VERSION} nicht gefunden. Neubau wird gestartet."
-        echo "export NEEDS_BUILD=true" > build.env
+        echo "export NEEDS_BUILD=true" > "$CI_PROJECT_DIR/build.env"
       fi
   build:
     - |
-      source build.env
+      source "$CI_PROJECT_DIR/build.env"
       if [ "$NEEDS_BUILD" = "true" ]; then        
         # see https://github.com/jech/galene/blob/master/galene-install.md
         # build galene
-        
+
         echo "Version ${GALENE_VERSION} nicht gefunden. Starte Neubau..."
         git clone "$GALENE_REPOSITORY" galene && cd galene && git checkout "galene-$GALENE_VERSION"
         CGO_ENABLED=0 go build -ldflags='-s -w'    
@@ -53,7 +53,7 @@
 
   load_artifact:
     - |
-      source build.env
+      source "$CI_PROJECT_DIR/build.env"
       if [ "$NEEDS_BUILD" != "true" ]; then
         echo "Version ${GALENE_VERSION} existiert bereits. Lade aus Registry..."
         mkdir -p "$CI_PROJECT_DIR/assets"
@@ -67,7 +67,7 @@
 
   save_artifact:
     - |
-      source build.env
+      source "$CI_PROJECT_DIR/build.env"
       if [ "$NEEDS_BUILD" = "true" ]; then
         echo "Speichere fertiges Artefakt in die GitLab Registry..."
         
