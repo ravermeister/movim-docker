@@ -74,20 +74,25 @@
         curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
           --upload-file "$CI_PROJECT_DIR/assets/galene.tgz" \
           "${GALENE_PACKAGE_URL}" 
-        
-        echo "Bereinige Registry (Behalte maximal die neuesten $KEEP_VERSIONS Versionen)..."      
-        curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=galene&sort=desc&order_by=id"
+          
+        echo "Bereinige Registry (Behalte maximal die neuesten $KEEP_VERSIONS Versionen)..."              
         PACKAGES_JSON=$(curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages?package_name=galene&sort=desc&order_by=id")
-        OLD_PACKAGE_IDs=$(echo "$PACKAGES_JSON" | jq -r ".[${KEEP_VERSIONS}:].id | select(. != null)")
+
+        
 
         if [ -z "$OLD_PACKAGE_IDs" ]; then
           echo "Registry ist sauber. Keine alten Versionen zum Löschen gefunden."
         else
-          for PACKAGE_ID in $OLD_PACKAGE_IDs; do
-            VERSION_NAME=$(echo "$PACKAGES_JSON" | jq -r ".[] | select(.id == ${PACKAGE_ID}) | .version")
-            echo "Lösche alte Galene-Version: $VERSION_NAME (ID: $PACKAGE_ID)..."          
-            curl --request DELETE --header "PRIVATE-TOKEN: ${GITLAB_REGISTRY_BOT}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PACKAGE_ID}"
-          done
+          OLD_PACKAGE_IDs=$(echo "$PACKAGES_JSON" | jq -r ".[${KEEP_VERSIONS}:].id | select(. != null)")
+          if [ -z "$OLD_PACKAGE_IDs" ]; then
+              echo "Registry ist sauber. Das Limit von $KEEP_VERSIONS Versionen wurde nicht überschritten."
+          else
+            for PACKAGE_ID in $OLD_PACKAGE_IDs; do
+              VERSION_NAME=$(echo "$PACKAGES_JSON" | jq -r ".[] | select(.id == ${PACKAGE_ID}) | .version")
+              echo "Lösche alte Galene-Version: $VERSION_NAME (ID: $PACKAGE_ID)..."          
+              curl --request DELETE --header "PRIVATE-TOKEN: ${GITLAB_REGISTRY_BOT}" --silent "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/${PACKAGE_ID}"
+            done
+          fi
         fi
       fi
 
