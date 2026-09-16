@@ -1,0 +1,49 @@
+services:
+  movim:
+    image: ravermeister/movim:latest
+    hostname: movim
+    restart: always
+    networks:
+      - movim_net
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    ports:
+      # Movim Web-Interface (Host:Container)
+      - "9085:80"
+      - "9443:443"
+      # Galène WebRTC & Signalisierungs-Ports
+      - "8443:8443"
+      - "1194:1194"
+    depends_on:
+      tunnel:
+        condition: service_healthy
+    volumes:
+      - /path/to/movim/config/movim.env:/usr/local/share/movim/.env
+      - /path/to/movim/config/movim.php.ini:/etc/php/conf.d/movim.ini
+      - /path/to/movim/data/movim/cache:/usr/local/share/movim/cache
+      - /path/to/movim/data/movim/pubcache:/usr/local/share/movim/public/cache
+      - /path/to/movim/data/movim/log:/usr/local/share/movim/log
+
+  # 2. Slidge SSH-Tunnel (Create an SSH Tunnel to the XMPP Component Port)
+  # See https://gitlab.rimkus.it/xmpp/slidge/slidge-sshtunnel
+  tunnel:
+    image: ravermeister/slidge-sshtunnel:latest
+    hostname: sfu.rimkus.it
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -an | grep 5347 > /dev/null 2>&1"]
+    networks:
+      - movim_net
+    volumes:
+      - /path/to/movim/config/movim.conf.sh:/home/ssh-tunnel/config/movim.conf.sh
+      - /path/to/movim/data/movim/ssh:/home/ssh-tunnel/.ssh
+
+networks:
+  movim_net:
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: "2a02:8365:7420:d2b4:2114::/80"
