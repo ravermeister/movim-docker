@@ -44,7 +44,7 @@ COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # add nginx config
-COPY assets/movim-nginx.conf /etc/nginx/sites-available/default
+COPY assets/movim-nginx.conf assets/galene-nginx.conf /etc/nginx/sites-enabled/
 
 # switch to www-data user
 RUN chown -R www-data:www-data /var/www \
@@ -150,5 +150,5 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
 USER root
 
 # nginx, galene ports
-EXPOSE 80 1194 8443
+EXPOSE 80 1194 18443
 ENTRYPOINT /usr/local/bin/entrypoint.sh
