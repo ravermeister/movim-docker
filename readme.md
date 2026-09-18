@@ -74,6 +74,7 @@ run the image as follows (movim will be available on host Machine at port 8080):
 docker run -d \
 	--name movim \
 	--restart always \	
+	--env MOVIM_MAIN_URL=https://movim.eternal.domaion \
 	# if you use galene add this argument \
 	--ulimit nofile=65536:65536 \
 	-p 8080:80 \

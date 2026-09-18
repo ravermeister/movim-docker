@@ -12,6 +12,8 @@ services:
     depends_on:
       tunnel:
         condition: service_healthy
+    environment:
+      - MOVIM_MAIN_URL=https://movim.external.domain
     ports:
       # Movim Web-Interface (Host:Container)
       - "8080:80"
