@@ -1,7 +1,16 @@
 #!/usr/bin/env bash
 
+export MOVIM_MAIN_URL=${MOVIM_MAIN_URL:-https://localhost}
+
+init_config() {	
+	for conf in $(find /etc/nginx/tpl-enabled -name "*.conf"); do 
+		filename=$(basename "$conf")
+		envsubst < "$conf" > "/etc/nginx/conf-enabled/$filename"
+	done
+}
+
 movim_daemon() {
-  php "$(which composer)" movim:migrate
+	php "$(which composer)" movim:migrate
 	php daemon.php start
 }
 
@@ -20,6 +29,7 @@ update_volume_permissions() {
 ## Main execution
 
 if [ "$(id -u)" -eq 0 ]; then
+	init_config
 	system_services
 	update_volume_permissions
 	su -l www-data -s /bin/bash "$0"

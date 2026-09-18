@@ -31,6 +31,7 @@ RUN ln -s /etc/php/conf.d/movim.ini $(find /etc/php -type d -name mods-available
     && phpenmod movim
 
 # PHP FPM Settings
+# add movim-fpm.conf config to template dir for Env Var processing
 COPY assets/movim-fpm.conf /etc/php/pool.d/movim.conf
 RUN rm $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/* \
     && ln -s /etc/php/pool.d/movim.conf $(find /etc/php -type d -name pool.d -not -path /etc/php/pool.d)/movim.conf
@@ -43,8 +44,8 @@ RUN ln -s /usr/local/share/galene/galene /usr/local/bin
 COPY assets/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# add nginx config
-COPY assets/movim-nginx.conf assets/galene-nginx.conf /etc/nginx/sites-enabled/
+# add nginx config to template dir for Env Var processing
+COPY assets/movim-nginx.conf assets/galene-nginx.conf /etc/nginx/tpl-enabled
 
 # switch to www-data user
 RUN chown -R www-data:www-data /var/www \
