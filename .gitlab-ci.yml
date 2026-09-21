@@ -31,7 +31,7 @@ variables:
     - curl -sSLo ~/.docker/cli-plugins/docker-buildx https://github.com/docker/buildx/releases/download/$BUILDX_VERSION/buildx-$BUILDX_VERSION.$BUILDX_ARCHITECTURE
     - chmod +x ~/.docker/cli-plugins/docker-buildx
     - docker context create tls-environment >/dev/null
-    - docker buildx create --use tls-environment >/dev/null    
+    - docker buildx create --name gitlab-builder --use tls-environment >/dev/null    
     - echo "${CI_REGISTRY_PASSWORD}" | awk '{print $0}' | docker login --username "${CI_REGISTRY_USER}" --password-stdin "${CI_REGISTRY}" 2>/dev/null
   logout:
     - docker logout
