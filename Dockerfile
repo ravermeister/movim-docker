@@ -150,6 +150,6 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
 # the movim daemon
 USER root
 
-# nginx, galene ports
-EXPOSE 80 1194 18443
+# nginx, galene-admin
+EXPOSE 80 18443
 ENTRYPOINT /usr/local/bin/entrypoint.sh
