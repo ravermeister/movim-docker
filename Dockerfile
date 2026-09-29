@@ -129,7 +129,8 @@ RUN git clone $MOVIM_GIT_REPO /usr/local/share/movim \
 # the movim daemon
 USER root
 
-EXPOSE 80 1194 8443
+#nginx, galene-admin
+EXPOSE 80 18443
 ENTRYPOINT /usr/local/bin/entrypoint.sh
 
 # install movim-amd64
