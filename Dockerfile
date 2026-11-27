@@ -12,7 +12,7 @@ RUN set -eux; \
       apt-transport-https ca-certificates less nano \
       tzdata libatomic1 wget make xz-utils git nginx \
       unzip libmagickwand-dev libjpeg-dev libpng-dev libwebp-dev libpq-dev libzip-dev \
-      composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear php-zip php-bcmath \
+      composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear php-zip php-bcmath dumb-init \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
 #    # Remove MOTD
@@ -69,7 +69,7 @@ RUN set -eux; \
       apt-transport-https ca-certificates less nano \
       tzdata libatomic1 wget make xz-utils git nginx \
       unzip libmagickwand-dev libjpeg-dev libpng-dev libwebp-dev libpq-dev libzip-dev \
-      composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear php-bcmath php-zip \
+      composer php-fpm php-curl php-mbstring php-imagick php-gd php-pgsql php-xml php-dev php-pear php-bcmath php-zip dump-init \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
 #    # Remove MOTD
@@ -131,7 +131,7 @@ USER root
 
 #nginx, galene-admin
 EXPOSE 80 18443
-ENTRYPOINT /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["dumb-init", "/usr/local/bin/entrypoint.sh"]
 
 # install movim-amd64
 FROM base-amd64 AS movim-amd64
@@ -153,4 +153,4 @@ USER root
 
 # nginx, galene-admin
 EXPOSE 80 18443
-ENTRYPOINT /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["dumb-init", "/usr/local/bin/entrypoint.sh"]
